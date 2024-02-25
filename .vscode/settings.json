@@ -1,0 +1,39 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.adapterTargetName": "esp32",
+  "idf.openOcdConfigs": [
+    "board/esp32-bridge.cfg"
+  ],
+  "idf.portWin": "COM25",
+  "idf.flashType": "UART",
+  "files.associations": {
+    "uart.h": "c",
+    "sdkconfig.h": "c",
+    "freertos.h": "c",
+    "portable.h": "c",
+    "encmot.h": "c",
+    "portmacro.h": "c",
+    "algorithm": "c",
+    "pidcontroller.h": "c",
+    "set": "c",
+    "chrono": "c",
+    "format": "c",
+    "regex": "c",
+    "task.h": "c",
+    "queue.h": "c",
+    "esp_log.h": "c",
+    "stdio.h": "c",
+    "stdarg.h": "c",
+    "sysinfoapi.h": "c"
+  },
+  "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
+  "C_Cpp.files.exclude": {
+    "D:/**": true, // Exclui o diretorio D 
+    "**/.vscode": true,
+    "**/.vs": true
+  },
+
+  "terminal.integrated.env.windows": {
+    "PATH": "C:\\MinGW\\bin;C:\\CMake\\bin;${env:PATH}"
+  }
+}
