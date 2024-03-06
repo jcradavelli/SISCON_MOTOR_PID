@@ -1,3 +1,16 @@
+/**
+ * @file PIDcontroller.c
+ * @author 
+ * @brief 
+ * @version 0.1
+ * @date 2024-03-04
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ * Adaptado de: https://github.com/pms67/PID
+ * 
+ */
+
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
@@ -10,344 +23,197 @@
 #endif
 
 
-
 static const char *TAG = "PID_CONTR";
 
 
-/**
- * Structure that holds PID all the PID controller data, multiple instances are
- * posible using different structures for each controller
- */
-typedef struct pid_ {
-	// Input, output and setpoint
-	pid_sample_t *sample;
-	float * output; //!< Corrective Output from PID Controller
-	float * setpoint; //!< Controller Setpoint
-	// Tuning parameters
-	float Kp; //!< Stores the gain for the Proportional term
-	float Ki; //!< Stores the gain for the Integral term
-	float Kd; //!< Stores the gain for the Derivative term
-	// Output minimum and maximum values
-	float omin; //!< Maximum value allowed at the output
-	float omax; //!< Minimum value allowed at the output
-	// Variables for PID algorithm
-	float iterm; //!< Accumulator for integral term
-	float lastin; //!< Last input value for differential term
-	// Time related
-	uint32_t lasttime_ms; //!< Stores the time when the control loop ran last time
-	uint32_t samplerate_ms; //!< Defines the PID sample time
-	// Operation mode
-	uint8_t automode; //!< Defines if the PID controller is enabled or disabled
-	pid_control_directions_t direction;
-	bool isSatured;
-
-}pid_controller_t;
-
-
-
-pid_controller_t __pid_attach 
-(
-	pid_sample_t *sample, 
-	float* out, 
-	float* set, 
-	float kp, 
-	float ki, 
-	float kd, 
-	int samplerate_ms
-)
+typedef struct 
 {
-	pid_controller_t pid = {0};
+	/* Controller gains */
+	double Kp;
+	double Ki;
+	double Kd;
+	/* Derivative low-pass filter time constant */
+	double tau;
+	/* Output limits */
+	int limMin;
+	int limMax;
+	/* Integrator limits */
+	int limMinInt;
+	int limMaxInt;
+	/* Sample time (in seconds) */
+	double T;
+	/* Controller "memory" */
+	double integrator;
+	double prevError;			/* Required for integrator */
+	double differentiator;
+	double prevMeasurement;		/* Required for differentiator */
+	/* Controller output */
+	int out;
+} PIDController_t;
 
-	pid.sample = sample;
-	pid.output = out;
-	pid.setpoint = set;
-	pid.automode = false;
-	pid.isSatured = false;
 
-	pid_limits(&pid, 0, 255);
+PIDController_h PIDController_create(void){
+	PIDController_h this = malloc (sizeof(PIDController_t));
 
-	pid.samplerate_ms = samplerate_ms;
+	if (this != NULL)
+		memset(this, 0, sizeof(PIDController_t));
+	else
+		ESP_LOGE(TAG, "Não foi possivel criar o objeto PIDController_t");
 
-	pid_direction(&pid, E_PID_DIRECT);
-	pid_tune(&pid, kp, ki, kd);
-
-	pid.lasttime_ms = pid.sample->time_ms;//tick_get() - handler->samplerate_ms;
-
-	return pid;
+	return (this);
 }
 
-pid_controller_h pid_attach (pid_config_t config)
+int PIDController_delete (PIDController_h pid)
 {
-	pid_controller_t aux;
-    pid_controller_h object = NULL;
-    
-    // Aloca memoria para o objeto EcnMot
-    object = malloc(sizeof(pid_controller_t));
-    if (object == NULL)
-    {
-        ESP_LOGE(TAG,"Não foi possivel criar o objeto.");
-        return(NULL);
+	if (pid != NULL)
+	{
+		free(pid);
+		pid = NULL;
+		return(0);
+	}
+
+	ESP_LOGE(TAG, "Não foi possivel deletar o objeto NULL");
+	return(1);
+}
+
+
+void PIDController_Init
+(
+	PIDController_h pid,
+	double Kp,
+	double Ki,
+	double Kd,
+	double tau,
+	int limMin,
+	int limMax,
+	int limMinInt,
+	int limMaxInt,
+	double T
+) 
+{
+	// asserts
+	assert(pid != 0); // PID deve ser um endereço válido
+
+	// Variáveis internas
+	PIDController_t *this = pid;
+
+	// Inicializa parâmetros de usuário
+	this->Kp		=	Kp;
+	this->Ki		=	Ki;
+	this->Kd		=	Kd;
+	this->tau		=	tau;
+	this->limMin	=	limMin;
+	this->limMax	=	limMax;
+	this->limMinInt	=	limMinInt;
+	this->limMaxInt	=	limMaxInt;
+	this->T			=	T;
+
+	/* Clear controller variables */
+	this->integrator = 0.0f;
+	this->prevError  = 0.0f;
+
+	this->differentiator  = 0.0f;
+	this->prevMeasurement = 0.0f;
+
+	this->out = 0.0f;
+
+}
+
+double proportional;
+double error;
+double PIDController_Update(PIDController_h pid, double setpoint, double measurement) 
+{
+	// asserts
+	assert(pid != 0); // PID deve ser um endereço válido
+
+	// Variáveis internas
+	PIDController_t *this = pid;
+
+	/*
+	* Error signal
+	*/
+    error = setpoint - measurement;
+
+	/*
+	* Proportional
+	*/
+    proportional = this->Kp * error;
+
+	/*
+	* Integral
+	*/
+    this->integrator = this->integrator + 0.5f * this->Ki * this->T * (error + this->prevError);
+
+	/* Anti-wind-up via integrator clamping */
+    if (this->integrator > this->limMaxInt) {
+        this->integrator = this->limMaxInt;
+    } else if (this->integrator < this->limMinInt) {
+        this->integrator = this->limMinInt;
     }
 
-	aux = __pid_attach(
-		config.sample,
-		config.out,
-		config.set,
-		config.kp,
-		config.ki,
-		config.kd,
-		config.samplerate_ms
-	);
-	memcpy(object, &aux, sizeof(pid_controller_t));
+	/*
+	* Derivative (band-limited differentiator)
+	*/
+    this->differentiator = -(2.0f * this->Kd * (measurement - this->prevMeasurement)	/* Note: derivative on measurement, therefore minus sign in front of equation! */
+                        + (2.0f * this->tau - this->T) * this->differentiator)
+                        / (2.0f * this->tau + this->T);
 
-	ESP_LOGI(TAG, "PIDcontroller conectado!");
-	ESP_LOGD(TAG, 
-			"\n---------- PID controller config -------------\n"
-			"sample->input:\t\t%f\n"
-			"sample->time_ms:\t%lld\n"
-			"out (adr):\t\t%f\t(%p)\n"
-			"samplerate_ms:\t\t%d\n"
-			"set (adr):\t\t%f\t(%p)\n"
-			"kp:\t\t\t%f\n"
-			"ki:\t\t\t%f\n"
-			"kd:\t\t\t%f\n"
-			"----------------------------------------------", 
-			config.sample->input,
-			config.sample->time_ms,
-			*config.out, config.out,
-			config.samplerate_ms,
-			*config.set, config.set,
-			config.kp,
-			config.ki,
-			config.kd
-	);
+	/*
+	* Compute output and apply limits
+	*/
+    this->out = proportional + this->integrator + this->differentiator;
+    if (this->out > this->limMax) {
+        this->out = this->limMax;
+    } else if (this->out < this->limMin) {
+        this->out = this->limMin;
+    }
 
-    return(object);
-}
+	/* Store error and measurement for later use */
+    this->prevError       = error;
+    this->prevMeasurement = measurement;
 
-
-
-bool pid_need_compute(pid_controller_h pid)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
-
-	int delta_time = handler->sample->time_ms - handler->lasttime_ms;
-	bool result = (delta_time >= handler->samplerate_ms) ? true : false;
-
-
-	// ESP_LOGD(
-	// 	TAG,
-	// 	"\n-------- need compute job ---------\n"
-	// 	"sample->time_ms\t%lld\n"
-	// 	"lasttime_ms\t%ld\n"
-	// 	"samplerate_ms\t%ld\n"
-	// 	"delta_time\t%d\n"
-	// 	"result\t\t%d\n"
-	// 	"-----------------------------------",
-	// 	handler->sample->time_ms,
-	// 	handler->lasttime_ms,
-	// 	handler->samplerate_ms,
-	// 	delta_time,
-	// 	(int)result
-	// );
-
-	// Check if the PID period has elapsed
-	return(result);
-}
-
-bool pid_IsSatured (pid_controller_h pid)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	return(handler->isSatured);
-}
-
-bool pid_compute(pid_controller_h pid)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	pid_sample_t sample;
-	float error;
-	float dinput;
-	float out;
-	assert(handler != NULL);
-
-	// Check if control is enabled
-	if (handler->automode == false)
-	{
-		ESP_LOGD(TAG,"PID auto mode disabled!");
-		return (false);
-	}
-
-	if (pid_need_compute(pid) == false)
-	{
-		//O PID não necessita ser calculado ainda
-		return (false);
-	}
-	
-	// Copy sample
-	sample = *handler->sample;
-
-	// Compute error
-	error = (*(handler->setpoint)) - sample.input;
-
-	
-	//Anti-windup
-	// 		A integração é interrompida quando o controlador satura e 
-	//      o sinal de erro tem mesmo sinal que a saída do controlador
-
-	if (handler->isSatured == true)
-	{
-		//Se chegou aqui, o sinal de saida está saturado
-		if ((error > 0 && *handler->output < 0) || (error < 0 && *handler->output > 0))
-		{
-			//Se chegou aqui, o erro e a saída tem sinais opostos
-			// Compute integral
-			handler->iterm += (handler->Ki * error);
-		}
-	}
-	else
-	{
-		// Computa a integral normalmente se não saturado
-		handler->iterm += (handler->Ki * error);
-	}
-
-	
-	// Compute differential on input
-	dinput = sample.input - handler->lastin;
-
-	// Compute PID output
-	out = (handler->Kp * error) + (handler->iterm) - (handler->Kd * dinput);
-
-
-	// Output to pointed variable
-	if ((out >= handler->omax) || (out <= handler->omin))
-	{
-		// Saída do controlador está saturada
-		handler->isSatured = true;
-
-		// Apply limit to output value
-		if (out > handler->omax)
-			(*handler->output) = handler->omax;
-		else
-			(*handler->output) = handler->omin;
-	}
-	else
-	{
-		handler->isSatured = false;
-
-		// Propaga a saída do controlador para o processo
-		(*handler->output) = out;
-		
-	}
-
-	
-
+	/* Debug */
 	ESP_LOGD(
 		TAG,
 		"\n---------- PID controller job ----------------\n"
-		">in:\t\t%e\n"
+		">measurement:\t\t%e\n"
 		">setpoint:\t%e\n"
 		">error:\t\t%e\n"
 		">kp: %e\n"
 		">ki: %e\n"
 		">kd: %e\n"
-		">handler->iterm:\t%e\n"
-		">dinput:\t\t%e\n"
-		">out:\t\t%e\n"
+		">proportional:\t%e\n"
+		">integrator:\t\t%e\n"
+		">differentiator:\t\t%e\n"
+		">out:\t\t%d\n"
 		"\n----------------------------------------------\n",
-		sample.input,
-		*(handler->setpoint),
+		measurement,
+		setpoint,
 		error,
-		handler->Kp,
-		handler->Ki,
-		handler->Kd,
-		handler->iterm,
-		dinput,
-		out
+		this->Kp,
+		this->Ki,
+		this->Kd,
+		proportional,
+		this->integrator,
+		this->differentiator,
+		this->out
 	);
-	
-	// Keep track of some variables for next execution
-	handler->lastin = sample.input;
-	handler->lasttime_ms = handler->sample->time_ms;
 
-	return (true);
-}
 
-void pid_tune(pid_controller_h pid, float kp, float ki, float kd)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
-	
-	// Check for validity
-	if (kp < 0 || ki < 0 || kd < 0)
-		return;
-	
-	//Compute sample time in seconds
-	//float ssec = ((float) handler->samplerate_ms) / ((float) 1000); //TODO: check if can use real time
-
-	handler->Kp = kp;
-	handler->Ki = ki;// * ssec;
-	handler->Kd = kd;// / ssec;
+	/* Return controller output */
+    return this->out;
 
 }
 
-void pid_limits(pid_controller_h pid, float min, float max)
+
+
+void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double kd)
 {
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
+	// asserts
+	assert(pid != 0); // PID deve ser um endereço válido
 
-	if (min >= max) return;
-	handler->omin = min;
-	handler->omax = max;
-	//Adjust output to new limits
-	if (handler->automode) {
-		if (*(handler->output) > handler->omax)
-			*(handler->output) = handler->omax;
-		else if (*(handler->output) < handler->omin)
-			*(handler->output) = handler->omin;
+	// Variáveis internas
+	PIDController_t *this = pid;
 
-		if (handler->iterm > handler->omax)
-			handler->iterm = handler->omax;
-		else if (handler->iterm < handler->omin)
-			handler->iterm = handler->omin;
-	}
-}
-
-void pid_auto(pid_controller_h pid)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
-
-	// If going from manual to auto
-	if (!handler->automode) {
-		// handler->iterm = *(handler->output);
-		handler->lastin = handler->sample->input;
-		// if (handler->iterm > handler->omax)
-		// 	handler->iterm = handler->omax;
-		// else if (handler->iterm < handler->omin)
-		// 	handler->iterm = handler->omin;
-		handler->iterm = 0;
-		handler->automode = true;
-	}
-}
-
-void pid_manual(pid_controller_h pid)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
-
-	handler->automode = false;
-}
-
-void pid_direction(pid_controller_h pid, pid_control_directions_t dir)
-{
-	pid_controller_t *handler = (pid_controller_t* )pid;
-	assert(handler != NULL);
-	
-	if (handler->automode && handler->direction != dir) {
-		handler->Kp = (0 - handler->Kp);
-		handler->Ki = (0 - handler->Ki);
-		handler->Kd = (0 - handler->Kd);
-	}
-	handler->direction = dir;
+	PIDController_Init(pid, kp, ki, kd, this->tau, this->limMin, this->limMax, this->limMinInt, this->limMaxInt, this->T);
 }

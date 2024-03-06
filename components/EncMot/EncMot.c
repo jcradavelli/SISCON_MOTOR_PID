@@ -29,19 +29,27 @@ static const char *TAG = "EncMot";
 #define WATCHPOINT_INFERIOR     -5000
 
 
+// TODO: Passar essa configuração como parâmetro
+#define PID_TAU                 0.02f
+#define PID_LIM_MIN             -400.0f
+#define PID_LIM_MAX             400.0f
+#define PID_LIM_MIN_INT         -300.0f
+#define PID_LIM_MAX_INT         300.0f
+
 
 typedef struct encmot_{
     /* Sub Objetos */
     encoder_h        encoder;
     motor_h          motor;
-    pid_controller_h PIDcontroller;
+    PIDController_h  PIDcontroller;
 
     /* Contexto do objeto principal */
-    float            pid_out;
-    pid_sample_t     pid_input;
-    float            pid_setpoint;
+    double           pid_out;
+    double           pid_measure;
+    double           pid_setpoint;
     bool*            isSatured;
 }encmot_t;
+
 
 static bool example_pcnt_on_reach(pcnt_unit_handle_t unit, const pcnt_watch_event_data_t *edata, void *user_ctx)
 {
@@ -95,21 +103,12 @@ encmot_h encmot_attach (encmot_config_t config)
     motor_set_speed(aux.motor, 0);
 
     // Conecta o controlador PID
-    pid_config_t pid_config = {
-        .kd                                 =   config.pid_config.kd,
-        .ki                                 =   config.pid_config.ki,
-        .kp                                 =   config.pid_config.kp,
-        .out                                =   &((encmot_t*)object)->pid_out,
-        .sample                             =   &((encmot_t*)object)->pid_input,
-        .samplerate_ms                      =   config.pid_config.samplerate_ms,
-        .set                                =   &((encmot_t*)object)->pid_setpoint,
-    };
-    aux.PIDcontroller = pid_attach(pid_config);
-    pid_limits(aux.PIDcontroller, -400, 400); //TODO: Definir os limites conforme a resolução do PWM do motor {Resolução HZ / Freq do PWM}
-    pid_auto(aux.PIDcontroller);
+    PIDController_h pid = PIDController_create();
+    PIDController_Init(pid,config.pid_config.kp,config.pid_config.ki,config.pid_config.kd,PID_TAU,PID_LIM_MIN, PID_LIM_MAX, PID_LIM_MIN_INT, PID_LIM_MAX_INT, config.pid_config.samplerate_ms/1000);
+    aux.PIDcontroller = pid;
+
     aux.pid_setpoint = 0; 
-    aux.pid_input.input = 0;
-    aux.pid_input.time_ms = 0;
+    aux.pid_measure    = 0;
     aux.isSatured = config.pid_config.isSatured;
     
     memcpy(object, &aux, sizeof(aux));
@@ -142,33 +141,33 @@ inline float encmot_get_encoderPosition_rad(encmot_h handler)
 }
 
 
-#define GET_OBJECT(__handler__) (assert(__handler__!=NULL);encmot_t *object = handler;)
+// void encmot_stop (encmot_h handler)
+// {
+//     assert(handler!=NULL);
+//     encmot_t *object = handler;
 
-void encmot_stop (encmot_h handler)
-{
-    assert(handler!=NULL);
-    encmot_t *object = handler;
+//     // Coloca o PID em modo manual
+//     //TODO: disable PID
 
-    // Coloca o PID em modo manual
-    pid_manual(object->PIDcontroller);
+//     // Colocar a velocidade do motor em 0
+//     motor_set_speed(object->motor, 0);
 
-    // Colocar a velocidade do motor em 0
-    motor_set_speed(object->motor, 0);
+// }
 
-}
+// void encmot_continue (encmot_h handler)
+// {
+//     assert(handler!=NULL);
+//     encmot_t *object = handler;
 
-void encmot_continue (encmot_h handler)
-{
-    assert(handler!=NULL);
-    encmot_t *object = handler;
+//     // TODO: Enable PID
+// }
 
-    pid_auto(object->PIDcontroller);
-}
-
+//TODO: run inside a interrupt routine to mantain time 
 void encmot_runn (encmot_h handler) //sugestão de nome: encmot_tick
 {
     encmot_t *object = handler;
     encoder_sample_t encoder_sample;
+    double pid_out;
 
     assert(handler!=NULL);
 
@@ -177,34 +176,27 @@ void encmot_runn (encmot_h handler) //sugestão de nome: encmot_tick
 
     /* Coloca os dados de saída do encoder, na entrada do PID  */
     encoder_sample = encoder_get_lastSample(object->encoder);
-    object->pid_input.input = encoder_sample.count;
-    object->pid_input.time_ms = encoder_sample.time/1000;
+    object->pid_measure = encoder_sample.speed; //TODO, converter para rad ou rad/s
 
-    /* Roda a subrotina de controle, se necessário atualiza a saida */
-    if (pid_compute(object->PIDcontroller)){
+    /* Roda a subrotina de controle */
+    pid_out = PIDController_Update(object->PIDcontroller, object->pid_setpoint, object->pid_measure);
 
-        /* Propaga a saída do controle para o atuador*/
-        motor_set_speed(object->motor, object->pid_out);
-
-        /* check PID saturation */
-        *object->isSatured = pid_IsSatured(object->PIDcontroller);
-    }
+    /* Atualiza a saída */
+    motor_set_speed(object->motor, pid_out);
 }
 
-void encmot_set_position (encmot_h handler, int setpoint)
+void encmot_set_position (encmot_h handler, double setpoint)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
 
-    ESP_LOGD(TAG,"changing setpoint to %f", (float)setpoint);
-    object->pid_setpoint = (float)setpoint;
+    ESP_LOGD(TAG,"changing setpoint to %e", setpoint);
+    object->pid_setpoint = setpoint;
 }
 
 void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
-    pid_tune(object->PIDcontroller, kp, ki, kd);
-
-
+    PIDController_tune_pid(object->PIDcontroller, kp, ki, kd);
 }

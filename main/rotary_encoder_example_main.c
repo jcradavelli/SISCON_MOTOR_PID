@@ -41,29 +41,28 @@ void togle_setpoint (encmot_h encmot)
     static bool status = false;
 
     if (status == true)
-        set = 1000;
+        set = 0.0015;
     else
-        set = -1000;
+        set = -0.0015;
 
     status = !status;
 
-    encmot_set_position (encmot, (int)set);
+    encmot_set_position (encmot, set);
 }
 
 void stop_mottor (encmot_h encmot)
 {
-    encmot_stop(encmot);
+    // encmot_stop(encmot); // TODO criar função
 }
                 
 
-
+float kp=10000.0, ki=0.0, kd = 0.0;
+float* selected = &kp;
 void app_main(void)
 {
-    float kp=0.2, ki=0.0, kd = 0.0;
-    float* selected = &kp;
+
     bool butonsClear = false;
     bool satured = false;
-    bool setpoint = false;
     
     const encmot_config_t encmot_contig     = {
         .encoder_config = {
@@ -123,8 +122,9 @@ void app_main(void)
 
             if (!gpio_get_level(BUTTON_1))
             {
+                ESP_LOGD(TAG,"CONTINUE/SELECT");
                 togle_setpoint (encmot);
-                encmot_continue(encmot);
+                //encmot_continue(encmot);
                 butonsClear = false;
             }
 
@@ -144,6 +144,7 @@ void app_main(void)
 
             if (!gpio_get_level(BUTTON_4))
             {
+                ESP_LOGD(TAG,"STOP");
                 stop_mottor(encmot);
 
                 if (selected == &kp) selected = &ki;
@@ -156,7 +157,7 @@ void app_main(void)
         else if (gpio_get_level(BUTTON_1) && gpio_get_level(BUTTON_2) && gpio_get_level(BUTTON_3) && gpio_get_level(BUTTON_4))
         {
             butonsClear = true;
-            encmot_tune_pid(encmot,kp,ki,kd);
+            encmot_tune_pid(encmot,kp,ki,kd); // TODO: Ajustar PID
             ESP_LOGD(TAG,"GANHOS-------------------\n>kp:%e\n>ki:%e\n>kd:%e\n------------------",kp,ki,kd);
 
         }

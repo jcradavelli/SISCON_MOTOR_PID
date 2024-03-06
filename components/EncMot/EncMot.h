@@ -119,10 +119,10 @@ int encmot_get_enconderCount_raw(encmot_h handler);
 float encmot_get_encoderPosition_grad(encmot_h handler);
 float encmot_get_encoderPosition_rad(encmot_h handler);
 void encmot_runn (encmot_h handler);
-void encmot_set_position (encmot_h handler, int setpoint);
+void encmot_set_position (encmot_h handler, double setpoint);
 void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd);
-void encmot_stop (encmot_h handler);
-void encmot_continue (encmot_h handler);
+// void encmot_stop (encmot_h handler);
+// void encmot_continue (encmot_h handler);
 
 #ifdef __cplusplus
 }

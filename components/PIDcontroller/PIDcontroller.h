@@ -16,147 +16,62 @@ extern "C" {
 #endif
 
 
-#include <stdbool.h>
-#include <stdint.h>
+typedef void* PIDController_h;
+
 
 /**
- * Defines if the controler is direct or reverse
- */
-typedef enum {
-	E_PID_DIRECT,
-	E_PID_REVERSE,
-}pid_control_directions_t;
-
-
-
-typedef struct pid_sample_{
-    float input;
-    int64_t time_ms;
-}pid_sample_t;
-
-
-typedef struct pid_config_ {
-	pid_sample_t *sample;
-	float* out;
-	float* set; 
-	float kp;
-	float ki;
-	float kd;
-	int samplerate_ms;
-}pid_config_t;
-
-typedef void* pid_controller_h;
-
-/**
- * @brief Creates a new PID controller
- *
- * Creates a new pid controller and initializes it�s input, output and internal
- * variables. Also we set the tuning parameters
- *
- * @param pid A pointer to a pid_controller structure
-
- * @param out Poiter to put the controller output value
- * @param set Pointer float with the process setpoint value
- * @param kp Proportional gain
- * @param ki Integral gain
- * @param kd Diferential gain
- *
- * @return returns a pid_controller_t controller handle
- */
-pid_controller_h pid_attach(pid_config_t config);
-
-/**
- * @brief Check if PID loop needs to run
- *
- * Determines if the PID control algorithm should compute a new output value,
- * if this returs true, the user should read process feedback (sensors) and
- * place the reading in the input variable, then call the pid_compute() function.
- *
- * @return return Return true if PID control algorithm is required to run
- */
-bool pid_need_compute(pid_controller_h pid);
-
-/**
- * @brief Computes the output of the PID control
- *
- * This function computes the PID output based on the parameters, setpoint and
- * current system input.
- *
- * @param pid The PID controller instance which will be used for computation
+ * @brief Construtor do objeto controlador PID
  * 
- * @return true - o controlaor rodou e existe novo parâmetro de saída
- * @return false - não houve alteração no valor da saída
+ * @param pid 
  */
-bool pid_compute(pid_controller_h pid);
+PIDController_h PIDController_create(void);
 
 /**
- * @brief Sets new PID tuning parameters
- *
- * Sets the gain for the Proportional (Kp), Integral (Ki) and Derivative (Kd)
- * terms.
- *
- * @param pid The PID controller instance to modify
- * @param kp Proportional gain
- * @param ki Integral gain
- * @param kd Derivative gain
+ * @brief Destructor do objeto PID
+ * 
+ * @param pid 
  */
-void pid_tune(pid_controller_h pid, float kp, float ki, float kd);
+int PIDController_delete(PIDController_h pid);
 
 /**
- * @brief Sets the pid algorithm period
- *
- * Changes the between PID control loop computations.
- *
- * @param pid The PID controller instance to modify
- * @param time The time in milliseconds between computations
+ * @brief inicializa o objeto PID
+ * 
+ * @param pid 	handler do objeto pid
+ * @param Kp 	ganho proporcional
+ * @param Ki 	ganho integrativo
+ * @param Kd 	ganho derivativo
+ * @param tau 		constante de filtro derivativo
+ * @param limMin 	limite de saida mínimo
+ * @param limMax 	limite de saída máximo
+ * @param limMinInt limite de integrador mínimo (anti-windup)
+ * @param limMaxInt limite de integrador máximo (anti-windup)
+ * @param T período de execução da função update
  */
-void pid_sample(pid_controller_h pid, uint32_t time);
+void PIDController_Init (PIDController_h pid, double Kp, double Ki, double Kd, double tau, 
+						int limMin, int limMax, int limMinInt, int limMaxInt, double T);
 
 /**
- * @brief Sets the limits for the PID controller output
- *
- * @param pid The PID controller instance to modify
- * @param min The minimum output value for the PID controller
- * @param max The maximum output value for the PID controller
+ * @brief Executa o algorítmo de controle uma vez, essa função deve sewr chamada recorrentemente
+ * 
+ * @param pid handler do objeto pid
+ * @param setpoint Valor a ser atingido
+ * @param measurement Valor medido (realimentado)
+ * @return double saída do bloco de controle
  */
-void pid_limits(pid_controller_h pid, float min, float max);
+double PIDController_Update(PIDController_h pid, double setpoint, double measurement);
+
 
 /**
- * @brief Enables automatic control using PID
- *
- * Enables the PID control loop. If manual output adjustment is needed you can
- * disable the PID control loop using pid_manual(). This function enables PID
- * automatic control at program start or after calling pid_manual()
- *
- * @param pid The PID controller instance to enable
+ * @brief Ajusta os ganhos de PID
+ * 
+ * @param pid handler do objeto pid
+ * @param Kp 	ganho proporcional
+ * @param Ki 	ganho integrativo
+ * @param Kd 	ganho derivativo
  */
-void pid_auto(pid_controller_h pid);
-
-/**
- * @brief Disables automatic process control
- *
- * Disables the PID control loop. User can modify the value of the output
- * variable and the controller will not overwrite it.
- *
- * @param pid The PID controller instance to disable
- */
-void pid_manual(pid_controller_h pid);
-
-/**
- * @brief Configures the PID controller direction
- *
- * Sets the direction of the PID controller. The direction is "DIRECT" when a
- * increase of the output will cause a increase on the measured value and
- * "REVERSE" when a increase on the controller output will cause a decrease on
- * the measured value.
- *
- * @param pid The PID controller instance to modify
- * @param direction The new direction of the PID controller
- */
-void pid_direction(pid_controller_h pid, pid_control_directions_t dir);
+void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double kd);
 
 
-bool pid_IsSatured (pid_controller_h pid);
 
 #ifdef __cplusplus
 }

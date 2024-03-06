@@ -4,7 +4,7 @@
   "idf.openOcdConfigs": [
     "board/esp32-bridge.cfg"
   ],
-  "idf.portWin": "COM25",
+  "idf.portWin": "COM13",
   "idf.flashType": "UART",
   "files.associations": {
     "uart.h": "c",
@@ -24,7 +24,8 @@
     "esp_log.h": "c",
     "stdio.h": "c",
     "stdarg.h": "c",
-    "sysinfoapi.h": "c"
+    "sysinfoapi.h": "c",
+    "pcnt_ll.h": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {

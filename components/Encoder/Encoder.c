@@ -206,7 +206,6 @@ void encoder_runn (encoder_h handler)
     float speed=0;
     float acele;
     float jerk;
-
     int64_t time;
     int dtime;
 
@@ -220,13 +219,15 @@ void encoder_runn (encoder_h handler)
 
     // Calcula as derivadas
     dtime = time - object->last_sample.time;
+    speed = (float)(count - object->last_sample.count)/(dtime);
+    acele = (speed - object->last_sample.speed)/(dtime);
+    jerk  = (acele - object->last_sample.acele)/(dtime);
+
+    // Debug dos dados de encoder
     ESP_LOGD(TAG,"\n>time:%d us\r\n",dtime);
     ESP_LOGD(TAG,"\n>count:%d\r\n",count);
-    speed = (float)(count - object->last_sample.count)/(dtime);
     ESP_LOGD(TAG,"\n>Speed:%0.20e count/us\r\n",speed);
-    acele = (speed - object->last_sample.speed)/(dtime);
     ESP_LOGD(TAG,"\n>acele:%0.20e count/us²\r\n",acele);
-    jerk  = (acele - object->last_sample.acele)/(dtime);
     ESP_LOGD(TAG,"\n>jerk:%0.20e count/us³\r\n",jerk);
 
     // Atualiza os valores
