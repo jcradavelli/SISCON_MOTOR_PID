@@ -72,7 +72,6 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double kd);
 
 
-
 #ifdef __cplusplus
 }
 #endif

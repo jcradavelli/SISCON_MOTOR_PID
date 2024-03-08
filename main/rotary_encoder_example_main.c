@@ -56,7 +56,7 @@ void stop_mottor (encmot_h encmot)
 }
                 
 
-float kp=10000.0, ki=1000.0, kd = 0.0;
+float kp=5000.0, ki=15000.0, kd = 50.0;
 float* selected = &kp;
 void app_main(void)
 {

@@ -213,13 +213,40 @@ void encoder_runn (encoder_h handler)
 
     // Faz a aquisição da amostra
     taskENTER_CRITICAL(&my_spinlock);
-    count = encoder_get_enconderCount_raw(handler);
+    count   = encoder_get_enconderCount_raw(handler);
     time    = esp_timer_get_time();
     taskEXIT_CRITICAL(&my_spinlock);
 
+
+
     // Calcula as derivadas
     dtime = time - object->last_sample.time;
-    speed = (float)(count - object->last_sample.count)/(dtime);
+    ESP_LOGE(TAG,"\n>debug:%d\r\n",(count - object->last_sample.count));
+    ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
+    if (abs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
+    {
+        ESP_LOGE(TAG,"\n>count:%d\r\n",count);
+        ESP_LOGE(TAG,"\n>object->last_sample.count:%d\r\n",object->last_sample.count);
+        ESP_LOGE(TAG,"\n>SHRT_MIN:%d\r\n",SHRT_MIN);
+        ESP_LOGE(TAG,"\n>SHRT_MAX:%d\r\n",SHRT_MAX);
+
+        if (count > object->last_sample.count) // overflow?
+        {
+            object->last_sample.count += SHRT_MAX;
+            speed = (float)(count - object->last_sample.count)/(dtime);
+        }
+        else //underflow!
+        {
+            object->last_sample.count += SHRT_MIN; //ok
+            speed = (float)(count - object->last_sample.count)/(dtime);
+        }
+        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
+    }
+    else
+    {
+        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
+        speed = (float)(count - object->last_sample.count)/(dtime);
+    }
     acele = (speed - object->last_sample.speed)/(dtime);
     jerk  = (acele - object->last_sample.acele)/(dtime);
 

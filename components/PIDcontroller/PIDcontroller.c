@@ -47,6 +47,7 @@ typedef struct
 	double prevError;			/* Required for integrator */
 	double differentiator;
 	double prevMeasurement;		/* Required for differentiator */
+	double oldSetpoint;
 	/* Controller output */
 	int out;
 } PIDController_t;
@@ -128,6 +129,12 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 
 	// Variáveis internas
 	PIDController_t *this = pid;
+
+	if(this->oldSetpoint != setpoint)
+	{
+		this->integrator = 0; // Reseta o integrador ao modificar o setpoint
+		this->oldSetpoint = setpoint;
+	}
 
 	/*
 	* Error signal
