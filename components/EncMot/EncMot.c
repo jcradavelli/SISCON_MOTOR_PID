@@ -104,7 +104,7 @@ encmot_h encmot_attach (encmot_config_t config)
 
     // Conecta o controlador PID
     PIDController_h pid = PIDController_create();
-    PIDController_Init(pid,config.pid_config.kp,config.pid_config.ki,config.pid_config.kd,PID_TAU,PID_LIM_MIN, PID_LIM_MAX, PID_LIM_MIN_INT, PID_LIM_MAX_INT, config.pid_config.samplerate_ms/1000);
+    PIDController_Init(pid,config.pid_config.kp,config.pid_config.ki,config.pid_config.kd,PID_TAU,PID_LIM_MIN, PID_LIM_MAX, PID_LIM_MIN_INT, PID_LIM_MAX_INT, config.pid_config.samplerate_ms/1000.0);
     aux.PIDcontroller = pid;
 
     aux.pid_setpoint = 0; 

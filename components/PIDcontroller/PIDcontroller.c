@@ -142,7 +142,7 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	/*
 	* Integral
 	*/
-    this->integrator = this->integrator + 0.5f * this->Ki * this->T * (error + this->prevError);
+    this->integrator = this->integrator +  0.5f * this->Ki * this->T * (error + this->prevError);
 
 	/* Anti-wind-up via integrator clamping */
     if (this->integrator > this->limMaxInt) {

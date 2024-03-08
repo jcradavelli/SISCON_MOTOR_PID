@@ -41,9 +41,9 @@ void togle_setpoint (encmot_h encmot)
     static bool status = false;
 
     if (status == true)
-        set = 0.0015;
+        set = 0.0027;
     else
-        set = -0.0015;
+        set = -0.0010;
 
     status = !status;
 
@@ -56,7 +56,7 @@ void stop_mottor (encmot_h encmot)
 }
                 
 
-float kp=10000.0, ki=0.0, kd = 0.0;
+float kp=10000.0, ki=1000.0, kd = 0.0;
 float* selected = &kp;
 void app_main(void)
 {
