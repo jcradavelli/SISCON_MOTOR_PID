@@ -71,6 +71,12 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
  */
 void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double kd);
 
+/**
+ * @brief reseta as variáveis do controlador
+ * 
+ * @param pid handler do objeto pid
+ */
+void PIDController_reset (PIDController_h pid);
 
 #ifdef __cplusplus
 }

@@ -147,7 +147,7 @@ int main (void)
     assert(graph!=NULL);
 
     /* Simulate response using test system */
-    fprintf(graph, "pid_setpoint\tpid_in\tkp\tki\tkd\tpid_out\tW\tIa\tTheta\n");
+    fprintf(graph, "setpoint\tpid_in\tkp\tki\tkd\tpid_out\tW\tIa\tTheta\n");
 
     double calc_W = 0;
     double calc_Ia = 0;

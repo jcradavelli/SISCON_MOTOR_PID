@@ -224,3 +224,20 @@ void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double k
 
 	PIDController_Init(pid, kp, ki, kd, this->tau, this->limMin, this->limMax, this->limMinInt, this->limMaxInt, this->T);
 }
+
+void PIDController_reset (PIDController_h pid)
+{
+	// asserts
+	assert(pid != 0); // PID deve ser um endereço válido
+
+	// Variáveis internas
+	PIDController_t *this 	= pid;
+
+	/* Clear controller variables */
+	this->integrator 		= 0.0f;
+	this->prevError  		= 0.0f;
+	this->differentiator  	= 0.0f;
+	this->prevMeasurement 	= 0.0f;
+
+	this->out 				= 0.0f;
+}

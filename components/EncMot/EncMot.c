@@ -37,6 +37,12 @@ static const char *TAG = "EncMot";
 #define PID_LIM_MAX_INT         300.0f
 
 
+typedef enum controlerMode_
+{
+    CONTMODE_OPEN_LOOP,
+    CONTMODE_PID_SPEED,
+}controlerMode_t;
+
 typedef struct encmot_{
     /* Sub Objetos */
     encoder_h        encoder;
@@ -46,8 +52,9 @@ typedef struct encmot_{
     /* Contexto do objeto principal */
     double           pid_out;
     double           pid_measure;
-    double           pid_setpoint;
+    double           setpoint;
     bool*            isSatured;
+    controlerMode_t  contmode;
 }encmot_t;
 
 
@@ -105,12 +112,13 @@ encmot_h encmot_attach (encmot_config_t config)
     // Conecta o controlador PID
     PIDController_h pid = PIDController_create();
     PIDController_Init(pid,config.pid_config.kp,config.pid_config.ki,config.pid_config.kd,PID_TAU,PID_LIM_MIN, PID_LIM_MAX, PID_LIM_MIN_INT, PID_LIM_MAX_INT, config.pid_config.samplerate_ms/1000.0);
-    aux.PIDcontroller = pid;
 
-    aux.pid_setpoint = 0; 
-    aux.pid_measure    = 0;
-    aux.isSatured = config.pid_config.isSatured;
-    
+    aux.PIDcontroller   = pid;
+    aux.setpoint    = 0; 
+    aux.pid_measure     = 0;
+    aux.isSatured       = config.pid_config.isSatured;
+    aux.contmode        = CONTMODE_OPEN_LOOP;
+
     memcpy(object, &aux, sizeof(aux));
 
     /* Configura o nivel de LOG da biblioteca encoder */
@@ -127,18 +135,18 @@ inline int encmot_get_enconderCount_raw(encmot_h handler)
 }
 
 //Wrapper function
-inline float encmot_get_encoderPosition_grad(encmot_h handler)
-{
-    encmot_t *object = handler;
-    return(encoder_get_encoderPosition_grad(object->encoder));
-}
+// inline float encmot_get_encoderPosition_grad(encmot_h handler)
+// {
+//     encmot_t *object = handler;
+    // return(encoder_get_encoderPosition_grad(object->encoder));
+// }
 
 //Wrapper function
-inline float encmot_get_encoderPosition_rad(encmot_h handler)
-{
-    encmot_t *object = handler;
-    return(encoder_get_encoderPosition_rad(object->encoder));
-}
+// inline float encmot_get_encoderPosition_rad(encmot_h handler)
+// {
+//     encmot_t *object = handler;
+//     return(encoder_get_encoderPosition_rad(object->encoder));
+// }
 
 
 // void encmot_stop (encmot_h handler)
@@ -162,36 +170,74 @@ inline float encmot_get_encoderPosition_rad(encmot_h handler)
 //     // TODO: Enable PID
 // }
 
+
+static double __contmode_openloop (encmot_h handler)
+{
+    encmot_t *object = handler;
+
+    /* Atualiza a saída */
+    motor_set_speed(object->motor, object->setpoint);
+
+    return(object->setpoint);
+}
+
+static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_sample)
+{
+    encmot_t *object = handler;
+    double pid_out;
+
+    /* Coloca os dados de saída do encoder, na entrada do PID  */
+    object->pid_measure = encoder_sample.speed; //TODO, converter para rad ou rad/s
+
+    /* Roda a subrotina de controle */
+    pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure);
+
+
+    return(pid_out);
+}
+
 //TODO: run inside a interrupt routine to mantain time 
-void encmot_runn (encmot_h handler) //sugestão de nome: encmot_tick
+void encmot_job (encmot_h handler) //sugestão de nome: encmot_tick
 {
     encmot_t *object = handler;
     encoder_sample_t encoder_sample;
-    double pid_out;
+    double controller_output;
 
     assert(handler!=NULL);
 
     /* Roda a subrotina do encoder */
-    encoder_runn(object->encoder);
-
-    /* Coloca os dados de saída do encoder, na entrada do PID  */
+    encoder_job(object->encoder);
     encoder_sample = encoder_get_lastSample(object->encoder);
-    object->pid_measure = encoder_sample.speed; //TODO, converter para rad ou rad/s
 
-    /* Roda a subrotina de controle */
-    pid_out = PIDController_Update(object->PIDcontroller, object->pid_setpoint, object->pid_measure);
+    switch(object->contmode)
+    {
+        case CONTMODE_OPEN_LOOP:
+            controller_output = __contmode_openloop(handler);
+            break;
 
-    /* Atualiza a saída */
-    motor_set_speed(object->motor, pid_out);
+        case CONTMODE_PID_SPEED:
+            controller_output = __contmode_pid_speed(handler, encoder_sample);
+            motor_set_speed(object->motor, controller_output);
+            break;
+    }
+
+    /*stream controll data */
+    // TODO: implementar fila e estrimar os dados de controle
 }
 
-void encmot_set_position (encmot_h handler, double setpoint)
+void encmot_set_speed (encmot_h handler, double setpoint)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
 
+    if (object->contmode != CONTMODE_PID_SPEED)
+    {
+        object->contmode = CONTMODE_PID_SPEED;
+        PIDController_reset (object->PIDcontroller);
+    }
+
     ESP_LOGD(TAG,"changing setpoint to %e", setpoint);
-    object->pid_setpoint = setpoint;
+    object->setpoint = setpoint;
 }
 
 void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd)

@@ -58,7 +58,7 @@ typedef struct encoder_config_{
 }encoder_config_t;
 
 /**
- * @brief 
+ * @brief estrutura de dados obtidos com a leitura do encoder
  * 
  */
 typedef struct encoder_sample_{
@@ -100,9 +100,19 @@ encoder_h encoder_attach (encoder_config_t config);
  */
 int encoder_get_enconderCount_raw(encoder_h handler);
 
-float encoder_get_encoderPosition_grad(encoder_h handler);
-float encoder_get_encoderPosition_rad(encoder_h handler);
-void encoder_runn (encoder_h handler);
+/**
+ * @brief executa a rotina do encoder, deve ser chamada regularmente com o período definido na configuração
+ * 
+ * @param handler handler para o objeto encoder, inicializado pela função ::encoder_attach
+ */
+void encoder_job (encoder_h handler);
+
+/**
+ * @brief retorna os ultimos dados amostrados pelo enconder
+ * 
+ * @param handler handler para o objeto encoder, inicializado pela função ::encoder_attach
+ * @return encoder_sample_t ultima amostra coletada do encoder
+ */
 encoder_sample_t encoder_get_lastSample (encoder_h handler);
 
 

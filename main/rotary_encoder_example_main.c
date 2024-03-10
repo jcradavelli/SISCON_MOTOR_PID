@@ -47,7 +47,7 @@ void togle_setpoint (encmot_h encmot)
 
     status = !status;
 
-    encmot_set_position (encmot, set);
+    encmot_set_speed (encmot, set);
 }
 
 void stop_mottor (encmot_h encmot)
@@ -112,7 +112,7 @@ void app_main(void)
        
         vTaskDelay(pdTICKS_TO_MS(1));
 
-        encmot_runn (encmot);
+        encmot_job (encmot);
         
         gpio_set_level(LED_OUT,satured);
 

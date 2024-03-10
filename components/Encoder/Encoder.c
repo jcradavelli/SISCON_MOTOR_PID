@@ -164,41 +164,41 @@ int encoder_get_enconderCount_raw(encoder_h handler)
     return (pulse_count);
 }
 
-static float __encoder_get_turns (encoder_h handler)
-{
-    encoder_t *object = handler;
-    float value;
+// static float __encoder_get_turns (encoder_h handler)
+// {
+//     encoder_t *object = handler;
+//     float value;
 
-    assert(handler!=NULL);
-    value = encoder_get_enconderCount_raw(handler);
-    value = (object->gear_ratio_numerator * value)/(object->gear_ration_denominator);
-    ESP_LOGD(TAG, "\n>Turns: %f", value);
+//     assert(handler!=NULL);
+//     value = encoder_get_enconderCount_raw(handler);
+//     value = (object->gear_ratio_numerator * value)/(object->gear_ration_denominator);
+//     ESP_LOGD(TAG, "\n>Turns: %f", value);
 
     
-    return(value);
-}
+//     return(value);
+// }
 
-float encoder_get_encoderPosition_grad(encoder_h handler)
-{
-    float value;
+// float encoder_get_encoderPosition_grad(encoder_h handler)
+// {
+//     float value;
 
-    assert(handler!=NULL);
-    value = __encoder_get_turns(handler) * 360;
+//     assert(handler!=NULL);
+//     value = __encoder_get_turns(handler) * 360;
 
-    return(value);
-}
+//     return(value);
+// }
 
-float encoder_get_encoderPosition_rad(encoder_h handler)
-{
-    float value;
+// float encoder_get_encoderPosition_rad(encoder_h handler)
+// {
+//     float value;
 
-    assert(handler!=NULL);
-    value = (__encoder_get_turns(handler) * 2 )/ M_PI;
+//     assert(handler!=NULL);
+//     value = (__encoder_get_turns(handler) * 2 )/ M_PI;
 
-    return(value);
-}
+//     return(value);
+// }
 
-void encoder_runn (encoder_h handler)
+void encoder_job (encoder_h handler)
 {
     encoder_t *object = handler;
     static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;

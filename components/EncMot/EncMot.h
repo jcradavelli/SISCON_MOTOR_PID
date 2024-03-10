@@ -116,11 +116,36 @@ encmot_h encmot_attach (encmot_config_t config);
  */
 int encmot_get_enconderCount_raw(encmot_h handler);
 
-float encmot_get_encoderPosition_grad(encmot_h handler);
-float encmot_get_encoderPosition_rad(encmot_h handler);
-void encmot_runn (encmot_h handler);
-void encmot_set_position (encmot_h handler, double setpoint);
+/**
+ * @brief executa a rotina do encomt, deve ser chamada regularmente com o período definido na configuração
+ * 
+ * @param handler 
+ */
+void encmot_job (encmot_h handler);
+
+/**
+ * @brief configura o setpoint a ser atingido
+ * TODO: Criar uma função específica para cada tipo de controle a ser utilizado
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param setpoint valor a ser perseguido pelo motor
+ */
+void encmot_set_speed (encmot_h handler, double setpoint);
+
+/**
+ * @brief ajusta os parâmetros de PID do controlador do motor
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param kp ganho proporcional
+ * @param ki ganho itegrativo
+ * @param kd ganho derivativo
+ */
 void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd);
+
+
+// TODO: Funções para expandir a biblioteca
+// float encmot_get_encoderPosition_grad(encmot_h handler);
+// float encmot_get_encoderPosition_rad(encmot_h handler);
 // void encmot_stop (encmot_h handler);
 // void encmot_continue (encmot_h handler);
 
