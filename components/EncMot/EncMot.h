@@ -23,6 +23,11 @@ extern "C" {
 #include "motor.h"
 #include "PIDcontroller.h"
 
+typedef struct encmotDebugStream_t
+{
+    PIDControllerDebugStream_t PID;
+}encmotDebugStream_t;
+
 
 /**
  * @brief Handler para o objeto encmot.
@@ -117,11 +122,12 @@ encmot_h encmot_attach (encmot_config_t config);
 int encmot_get_enconderCount_raw(encmot_h handler);
 
 /**
- * @brief executa a rotina do encomt, deve ser chamada regularmente com o período definido na configuração
+ * @brief 
  * 
- * @param handler 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param stream_out[OUT] ponteiro para stream de dados calculados 
  */
-void encmot_job (encmot_h handler);
+void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out);
 
 /**
  * @brief configura o setpoint a ser atingido

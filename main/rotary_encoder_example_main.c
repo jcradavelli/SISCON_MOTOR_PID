@@ -112,7 +112,7 @@ void app_main(void)
        
         vTaskDelay(pdTICKS_TO_MS(1));
 
-        encmot_job (encmot);
+        encmot_job (encmot, NULL);
         
         gpio_set_level(LED_OUT,satured);
 

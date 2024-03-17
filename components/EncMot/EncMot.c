@@ -181,7 +181,7 @@ static double __contmode_openloop (encmot_h handler)
     return(object->setpoint);
 }
 
-static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_sample)
+static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_sample, PIDControllerDebugStream_t *debugOut)
 {
     encmot_t *object = handler;
     double pid_out;
@@ -190,20 +190,26 @@ static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_s
     object->pid_measure = encoder_sample.speed; //TODO, converter para rad ou rad/s
 
     /* Roda a subrotina de controle */
-    pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, NULL);
+    pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, debugOut);
 
 
     return(pid_out);
 }
 
 //TODO: run inside a interrupt routine to mantain time 
-void encmot_job (encmot_h handler) //sugestão de nome: encmot_tick
+void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão de nome: encmot_tick
 {
     encmot_t *object = handler;
     encoder_sample_t encoder_sample;
     double controller_output;
+    PIDControllerDebugStream_t *PIDStream = NULL;
 
     assert(handler!=NULL);
+    if (stream_out != NULL)
+    {
+        PIDStream = &stream_out->PID;
+    }
+
 
     /* Roda a subrotina do encoder */
     encoder_job(object->encoder);
@@ -216,7 +222,7 @@ void encmot_job (encmot_h handler) //sugestão de nome: encmot_tick
             break;
 
         case CONTMODE_PID_SPEED:
-            controller_output = __contmode_pid_speed(handler, encoder_sample);
+            controller_output = __contmode_pid_speed(handler, encoder_sample, PIDStream);
             motor_set_speed(object->motor, controller_output);
             break;
     }
