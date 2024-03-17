@@ -190,7 +190,7 @@ static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_s
     object->pid_measure = encoder_sample.speed; //TODO, converter para rad ou rad/s
 
     /* Roda a subrotina de controle */
-    pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure);
+    pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, NULL);
 
 
     return(pid_out);

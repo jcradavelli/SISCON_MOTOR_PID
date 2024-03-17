@@ -122,7 +122,7 @@ void PIDController_Init
 
 double proportional;
 double error;
-double PIDController_Update(PIDController_h pid, double setpoint, double measurement) 
+double PIDController_Update(PIDController_h pid, double setpoint, double measurement, PIDControllerDebugStream_t *debugOut) 
 {
 	// asserts
 	assert(pid != 0); // PID deve ser um endereço válido
@@ -180,31 +180,44 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
     this->prevMeasurement = measurement;
 
 	/* Debug */
-	ESP_LOGD(
-		TAG,
-		"\n---------- PID controller job ----------------\n"
-		">measurement:\t\t%e\n"
-		">setpoint:\t%e\n"
-		">error:\t\t%e\n"
-		">kp: %e\n"
-		">ki: %e\n"
-		">kd: %e\n"
-		">proportional:\t%e\n"
-		">integrator:\t\t%e\n"
-		">differentiator:\t\t%e\n"
-		">out:\t\t%d\n"
-		"\n----------------------------------------------\n",
-		measurement,
-		setpoint,
-		error,
-		this->Kp,
-		this->Ki,
-		this->Kd,
-		proportional,
-		this->integrator,
-		this->differentiator,
-		this->out
-	);
+	if (debugOut != NULL)
+	{
+		debugOut->measurement		=	measurement;
+		debugOut->setpoint			=	setpoint;
+		debugOut->error				=	error;
+		debugOut->Kp				=	this->Kp;
+		debugOut->Ki				=	this->Ki;
+		debugOut->Kd				=	this->Kd;
+		debugOut->proportional		=	proportional;
+		debugOut->integrator		=	this->integrator;
+		debugOut->differentiator	=	this->differentiator;
+		debugOut->out				=	this->out;
+	}
+	// ESP_LOGD(
+	// 	TAG,
+	// 	"\n---------- PID controller job ----------------\n"
+	// 	">measurement:\t\t%e\n"
+	// 	">setpoint:\t%e\n"
+	// 	">error:\t\t%e\n"
+	// 	">kp: %e\n"
+	// 	">ki: %e\n"
+	// 	">kd: %e\n"
+	// 	">proportional:\t%e\n"
+	// 	">integrator:\t\t%e\n"
+	// 	">differentiator:\t\t%e\n"
+	// 	">out:\t\t%d\n"
+	// 	"\n----------------------------------------------\n",
+	// 	measurement,
+	// 	setpoint,
+	// 	error,
+	// 	this->Kp,
+	// 	this->Ki,
+	// 	this->Kd,
+	// 	proportional,
+	// 	this->integrator,
+	// 	this->differentiator,
+	// 	this->out
+	// );
 
 
 	/* Return controller output */

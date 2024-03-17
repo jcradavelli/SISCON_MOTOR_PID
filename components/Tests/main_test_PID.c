@@ -166,7 +166,7 @@ int main (void)
         }
 
 
-        pid_out = PIDController_Update(myPID, setpoint, measure);
+        pid_out = PIDController_Update(myPID, setpoint, measure, NULL);
 
     }
 

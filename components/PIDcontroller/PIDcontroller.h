@@ -16,6 +16,21 @@ extern "C" {
 #endif
 
 
+
+typedef struct PIDControllerDebugStream_
+{
+	double measurement;
+	double setpoint;
+	double error;
+	double Kp;
+	double Ki;
+	double Kd;
+	double proportional;
+	double integrator;
+	double differentiator;
+	double out;
+}PIDControllerDebugStream_t;
+
 typedef void* PIDController_h;
 
 
@@ -56,9 +71,11 @@ void PIDController_Init (PIDController_h pid, double Kp, double Ki, double Kd, d
  * @param pid handler do objeto pid
  * @param setpoint Valor a ser atingido
  * @param measurement Valor medido (realimentado)
+ * @param *debugOut[out] ponteiro onde são expostas os cálculos intermediários para depuração, ignorado se for nullo
  * @return double saída do bloco de controle
  */
-double PIDController_Update(PIDController_h pid, double setpoint, double measurement);
+double PIDController_Update(PIDController_h pid, double setpoint, double measurement, PIDControllerDebugStream_t *debugOut);
+
 
 
 /**
