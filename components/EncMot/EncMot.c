@@ -236,6 +236,8 @@ void encmot_set_speed (encmot_h handler, double setpoint)
     encmot_t *object = handler;
     assert(handler!=NULL);
 
+    //TODO: Check if contmode is running
+
     if (object->contmode != CONTMODE_PID_SPEED)
     {
         object->contmode = CONTMODE_PID_SPEED;
@@ -250,5 +252,8 @@ void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
+
+    //TODO: Check if contmode is running
+    
     PIDController_tune_pid(object->PIDcontroller, kp, ki, kd);
 }

@@ -193,32 +193,6 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 		debugOut->differentiator	=	this->differentiator;
 		debugOut->out				=	this->out;
 	}
-	// ESP_LOGD(
-	// 	TAG,
-	// 	"\n---------- PID controller job ----------------\n"
-	// 	">measurement:\t\t%e\n"
-	// 	">setpoint:\t%e\n"
-	// 	">error:\t\t%e\n"
-	// 	">kp: %e\n"
-	// 	">ki: %e\n"
-	// 	">kd: %e\n"
-	// 	">proportional:\t%e\n"
-	// 	">integrator:\t\t%e\n"
-	// 	">differentiator:\t\t%e\n"
-	// 	">out:\t\t%d\n"
-	// 	"\n----------------------------------------------\n",
-	// 	measurement,
-	// 	setpoint,
-	// 	error,
-	// 	this->Kp,
-	// 	this->Ki,
-	// 	this->Kd,
-	// 	proportional,
-	// 	this->integrator,
-	// 	this->differentiator,
-	// 	this->out
-	// );
-
 
 	/* Return controller output */
     return this->out;
@@ -235,6 +209,8 @@ void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double k
 	// Variáveis internas
 	PIDController_t *this = pid;
 
+	// TODO: Check if PID is running
+
 	PIDController_Init(pid, kp, ki, kd, this->tau, this->limMin, this->limMax, this->limMinInt, this->limMaxInt, this->T);
 }
 
@@ -245,6 +221,8 @@ void PIDController_reset (PIDController_h pid)
 
 	// Variáveis internas
 	PIDController_t *this 	= pid;
+
+	// TODO: Check if PID is running
 
 	/* Clear controller variables */
 	this->integrator 		= 0.0f;
