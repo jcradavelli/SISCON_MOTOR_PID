@@ -28,7 +28,7 @@ typedef struct PIDControllerDebugStream_
 	double proportional;
 	double integrator;
 	double differentiator;
-	double out;
+	int	   out;
 }PIDControllerDebugStream_t;
 
 typedef void* PIDController_h;
