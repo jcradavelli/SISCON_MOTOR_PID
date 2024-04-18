@@ -83,15 +83,18 @@ static encoder_t __encoder_attach
     ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan_b, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_DECREASE));
     ESP_ERROR_CHECK(pcnt_channel_set_level_action(pcnt_chan_b, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_INVERSE));
 
-    ESP_LOGI(TAG, "add watch points and register callbacks");
-    int watch_points[] = {pcnt_low_limit, watchpoint_inferior, watchpoint_targett, watchpoint_superior, pcnt_high_limit};
-    for (size_t i = 0; i < sizeof(watch_points) / sizeof(watch_points[0]); i++) {
-        ESP_ERROR_CHECK(pcnt_unit_add_watch_point(pcnt_unit, watch_points[i]));
+    if (example_pcnt_on_reach != NULL)
+    {
+        ESP_LOGI(TAG, "add watch points and register callbacks");
+        int watch_points[] = {pcnt_low_limit, watchpoint_inferior, watchpoint_targett, watchpoint_superior, pcnt_high_limit};
+        for (size_t i = 0; i < sizeof(watch_points) / sizeof(watch_points[0]); i++) {
+            ESP_ERROR_CHECK(pcnt_unit_add_watch_point(pcnt_unit, watch_points[i]));
+        }
+        pcnt_event_callbacks_t cbs = {
+            .on_reach = example_pcnt_on_reach,
+        };
+        ESP_ERROR_CHECK(pcnt_unit_register_event_callbacks(pcnt_unit, &cbs, example_pcnt_on_reach_user_data));
     }
-    pcnt_event_callbacks_t cbs = {
-        .on_reach = example_pcnt_on_reach,
-    };
-    ESP_ERROR_CHECK(pcnt_unit_register_event_callbacks(pcnt_unit, &cbs, example_pcnt_on_reach_user_data));
 
     ESP_LOGI(TAG, "enable pcnt unit");
     ESP_ERROR_CHECK(pcnt_unit_enable(pcnt_unit));
@@ -162,6 +165,14 @@ int encoder_get_enconderCount_raw(encoder_h handler)
     ESP_ERROR_CHECK(pcnt_unit_get_count(object->pcnt_unit, &pulse_count));
 
     return (pulse_count);
+}
+
+void encoder_clear_encoderCount (encoder_h handler)
+{
+    encoder_t *object = handler;
+
+    assert(handler!=NULL);
+    ESP_ERROR_CHECK(pcnt_unit_clear_count(object->pcnt_unit));
 }
 
 // static float __encoder_get_turns (encoder_h handler)

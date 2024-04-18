@@ -27,7 +27,16 @@
     "sysinfoapi.h": "c",
     "pcnt_ll.h": "c",
     "cstdlib": "c",
-    "gpio.h": "c"
+    "gpio.h": "c",
+    "pulse_cnt.h": "c",
+    "esp_sleep.h": "c",
+    "task_input.h": "c",
+    "encoder.h": "c",
+    "tasks.h": "c",
+    "event_groups.h": "c",
+    "task_encmot.h": "c",
+    "esp_lcd_panel_ops.h": "c",
+    "i2c.h": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {

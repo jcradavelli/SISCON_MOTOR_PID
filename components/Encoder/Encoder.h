@@ -19,6 +19,12 @@
 extern "C" {
 #endif
 
+#include "stdint.h"
+#include "hal/pcnt_ll.h"
+#include "driver/pulse_cnt.h"
+
+
+
 /**
  * @brief Handler para o objeto encoder.
  */
@@ -99,6 +105,13 @@ encoder_h encoder_attach (encoder_config_t config);
  * @return int valor contado
  */
 int encoder_get_enconderCount_raw(encoder_h handler);
+
+/**
+ * @brief Zera o contador
+ * 
+ * @param handler handler para o objeto encoder, inicializado pela função ::encoder_attach
+ */
+void encoder_clear_encoderCount (encoder_h handler);
 
 /**
  * @brief executa a rotina do encoder, deve ser chamada regularmente com o período definido na configuração
