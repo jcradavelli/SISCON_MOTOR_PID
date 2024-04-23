@@ -130,9 +130,10 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	if(this->oldSetpoint != setpoint)
+	// Reseta o integrador ao modificar o sentido do controle
+	if((this->oldSetpoint >= 0) ^ (setpoint > 0))
 	{
-		this->integrator = 0; // Reseta o integrador ao modificar o setpoint
+		this->integrator = this->integrator*-1;
 		this->oldSetpoint = setpoint;
 	}
 
@@ -210,9 +211,27 @@ void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double k
 	PIDController_t *this = pid;
 
 	// TODO: Check if PID is running
+	this->Kp = kp;
+	this->Ki = ki;
+	this->Kd = kd;
 
-	PIDController_Init(pid, kp, ki, kd, this->tau, this->limMin, this->limMax, this->limMinInt, this->limMaxInt, this->T);
 }
+
+void PIDController_tune_pid_byTime (PIDController_h pid, double bp, double ti, double td)
+{
+	// asserts
+	assert(pid != 0); // PID deve ser um endereço válido
+
+	// Variáveis internas
+	PIDController_t *this = pid;
+
+	// TODO: Check if PID is running
+	this->Kp = 100/bp;
+	this->Ki = this->Kp/ti;
+	this->Kd = this->Kp/td;
+
+}
+
 
 void PIDController_reset (PIDController_h pid)
 {

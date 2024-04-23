@@ -26,7 +26,9 @@ void stop_mottor (encmot_h encmot)
        
 
 // static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
+// static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
+static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+
 static float* selected = &kp;
 static float increment = 1;
 

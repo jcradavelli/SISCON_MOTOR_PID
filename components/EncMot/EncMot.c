@@ -241,7 +241,7 @@ void encmot_set_speed (encmot_h handler, double setpoint)
     if (object->contmode != CONTMODE_PID_SPEED)
     {
         object->contmode = CONTMODE_PID_SPEED;
-        PIDController_reset (object->PIDcontroller);
+        //PIDController_reset (object->PIDcontroller);
     }
 
     ESP_LOGD(TAG,"changing setpoint to %e", setpoint);

@@ -160,8 +160,8 @@ void tsk_graph (void *args)
 
         printf(
             "\n---------- PID controller job ----------------\n"
-            ">measurement:\t\t%e\n"
-            ">setpoint:\t%e\n"
+            ">measurement(x1000):\t\t%e\n"
+            ">setpoint(x1000):\t%e\n"
             // ">error:\t\t%e\n"
             ">kp: %e\n"
             ">ki: %e\n"
@@ -171,8 +171,8 @@ void tsk_graph (void *args)
             // ">differentiator:\t\t%e\n"
             ">out:\t\t%d\n"
             "\n----------------------------------------------\n",
-            received.PID.measurement,
-            received.PID.setpoint,
+            received.PID.measurement*1000,
+            received.PID.setpoint*1000,
             // received.PID.error,
             received.PID.Kp,
             received.PID.Ki,
