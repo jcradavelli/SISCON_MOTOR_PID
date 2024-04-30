@@ -63,10 +63,11 @@ static void tsk_input (void *args)
 
         vTaskDelay(pdMS_TO_TICKS(200));
             
-        counter_aux = (encoder_get_enconderCount_raw(this->encoder)/4);
+        counter_aux = encoder_get_enconderCount_raw(this->encoder); //se o encoder tiver um valor não multiplo de 4 (passo aprcial) esse passo é perdido
 
-        if (counter_aux != 0)
+        if ((counter_aux%4 == 0) && (counter_aux/4 !=0))
         {
+            counter_aux = counter_aux/4;
             counter += counter_aux*increment;
             encoder_clear_encoderCount(this->encoder);
             update = true;
