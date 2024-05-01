@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+#include "PIDcontroller.h"
 #include "tasks.h"
 
 
@@ -18,6 +19,15 @@ typedef struct tskGraph_args_
 
 void create_tsk_graph (tskGraph_args_t* tskInputArgs, UBaseType_t prioridade ,const BaseType_t xCoreID);
 
+
+void update_increment       (QueueHandle_t queue, float value);
+void update_pidDebugStream  (QueueHandle_t queue, PIDControllerDebugStream_t value);
+void update_KP              (QueueHandle_t queue, float value);
+void update_KI              (QueueHandle_t queue, float value);
+void update_KD              (QueueHandle_t queue, float value);
+void update_SP              (QueueHandle_t queue, float value);
+void update_SEL             (QueueHandle_t queue, const char *value);
+void update_newValue        (QueueHandle_t queue, float value);
 
 
 #ifdef __cplusplus

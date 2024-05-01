@@ -27,15 +27,7 @@ static const char *TAG = "example";
 
 
 
-#define EXAMPLE_EC11_GPIO_A     16
-#define EXAMPLE_EC11_GPIO_B     17
-#define MOTOR_CONTROL_A         5
-#define MOTOR_CONTROL_B         18
-#define BUTTON_1                21
-#define BUTTON_2                22
-#define BUTTON_3                23
-#define BUTTON_4                14
-#define LED_OUT                 19
+
 
 
          
@@ -116,6 +108,7 @@ void app_main(void)
     assert(xEventGroup != NULL);
     
     tskInputArgs.encmot = encmot;
+    tskInputArgs.logQueue = LogQueue;
     create_tsk_input (&tskInputArgs, configMAX_PRIORITIES/2, 1);
     
     tskGraphArgs.logQueue = LogQueue;

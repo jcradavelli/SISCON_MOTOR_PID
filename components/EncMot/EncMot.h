@@ -23,9 +23,33 @@ extern "C" {
 #include "motor.h"
 #include "PIDcontroller.h"
 
+
+typedef enum info_type_
+{
+    DEBUG_STREAM,
+    USR_KP,
+    USR_KI,
+    USR_KD,
+    USR_SP,
+    USR_SEL,
+    USR_INC,
+    USR_VAL,
+}info_type_t;
 typedef struct encmotDebugStream_t
 {
-    PIDControllerDebugStream_t PID;
+    info_type_t type;
+    union 
+    {
+        PIDControllerDebugStream_t PID;
+        float kp;
+        float ki;
+        float kd;
+        float sp;
+        char sel[10];
+        float inc;
+        float usrVal;
+    };
+    
 }encmotDebugStream_t;
 
 

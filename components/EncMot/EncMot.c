@@ -207,6 +207,7 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
     assert(handler!=NULL);
     if (stream_out != NULL)
     {
+        stream_out->type = DEBUG_STREAM;
         PIDStream = &stream_out->PID;
     }
 

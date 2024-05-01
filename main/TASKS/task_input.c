@@ -1,4 +1,5 @@
 #include "task_input.h"
+#include "task_graph.h"
 #define TAG "tskInput"
 
 
@@ -25,6 +26,10 @@ void stop_mottor (encmot_h encmot)
 }
        
 
+
+
+
+
 // static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
 // static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
 static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
@@ -34,10 +39,11 @@ static float increment = 1;
 
 static void tsk_input (void *args)
 {
+    encmotDebugStream_t display;
     tskInput_args_t *this;
     float counter = 0;
     int counter_aux = 0;
-    bool update = true;
+    bool update = false;
 
     assert (args != NULL);
     this = args;
@@ -50,6 +56,13 @@ static void tsk_input (void *args)
 
 
     printf(">Selected: kp|t\r\n");
+    printf(">UsrEncoder: %4.4f\r\n", counter);
+    printf(">Increment: %4.4f|t\r\n", increment);
+
+    update_KP(this->logQueue, kp);  
+    update_KI(this->logQueue, ki);  
+    update_KD(this->logQueue, kd);  
+    update_SP(this->logQueue, setPoint);  
 
     while (1)
     {
@@ -59,6 +72,9 @@ static void tsk_input (void *args)
             update = false;
             printf(">UsrEncoder: %4.4f\r\n", counter);
             printf(">Increment: %4.4f|t\r\n", increment);
+
+            update_increment(this->logQueue, increment);
+            update_newValue(this->logQueue, counter);
         }
 
         vTaskDelay(pdMS_TO_TICKS(200));
@@ -87,6 +103,24 @@ static void tsk_input (void *args)
                 encmot_set_speed (this->encmot, setPoint);
                 encmot_tune_pid(this->encmot,kp,ki,kd);
 
+                if (selected == &kp)
+                {
+                    update_KP(this->logQueue, counter);   
+                }
+                else if(selected == &ki)
+                {
+                    update_KI(this->logQueue, counter);
+                }
+                else if(selected == &kd)
+                {
+                    update_KD(this->logQueue, counter);
+                }
+                else if(selected == &setPoint)
+                {
+                    update_SP(this->logQueue, counter);
+                }
+
+
                 butonsClear = false;
             }
 
@@ -96,6 +130,8 @@ static void tsk_input (void *args)
                 increment = increment * 10;
                 update = true;
                 butonsClear = false;
+
+                update_increment(this->logQueue, increment);
             }
 
             if (!gpio_get_level(BUTTON_3))
@@ -104,6 +140,8 @@ static void tsk_input (void *args)
                 increment = increment / 10;
                 update = true;
                 butonsClear = false;
+
+                update_increment(this->logQueue, increment);
             }
 
             // Seleciona o valor a ser modificado
@@ -115,21 +153,25 @@ static void tsk_input (void *args)
                 {
                     printf(">Selected: kp|t\r\n");
                     selected = &kp;
+                    update_SEL(this->logQueue, "kp");
                 }
                 else if (selected == &kp)
                 {
                     printf(">Selected: ki|t\r\n");
                     selected = &ki;
+                    update_SEL(this->logQueue, "ki");
                 } 
                 else if (selected == &ki) 
                 {
                     printf(">Selected: kd|t\r\n");
                     selected = &kd;
+                    update_SEL(this->logQueue, "kd");
                 }
                 else if (selected == &kd) 
                 {
                     printf(">Selected: setPoint|t\r\n");
                     selected = &setPoint;
+                    update_SEL(this->logQueue, "setPoint");
                 }
 
                 counter = *selected;

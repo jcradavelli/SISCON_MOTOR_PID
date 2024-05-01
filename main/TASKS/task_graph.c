@@ -22,8 +22,8 @@
 #define I2C_BUS_PORT  0
 
 #define EXAMPLE_LCD_PIXEL_CLOCK_HZ    (400 * 1000)
-#define EXAMPLE_PIN_NUM_SDA           26
-#define EXAMPLE_PIN_NUM_SCL           25
+#define EXAMPLE_PIN_NUM_SDA           17
+#define EXAMPLE_PIN_NUM_SCL           16
 #define EXAMPLE_PIN_NUM_RST           -1
 #define EXAMPLE_I2C_HW_ADDR           0x3C
 
@@ -43,12 +43,107 @@ void example_lvgl_demo_ui(lv_disp_t *disp)
 {
     lv_obj_t *scr = lv_disp_get_scr_act(disp);
     lv_obj_t *label = lv_label_create(scr);
+
     lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
-    lv_label_set_text(label, "Hello Espressif, Hello LVGL.");
+    lv_label_set_text(label, "Te amo Camila");
+    /* Size of the screen (if you use rotation 90 or 270, please set disp->driver->ver_res) */
+    lv_obj_set_width(label, disp->driver->hor_res);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+}
+
+void example_lvgl_demo_u2(lv_disp_t *disp)
+{
+    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+    lv_obj_t *label = lv_label_create(scr);
+
+    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR); /* Circular scroll */
+    lv_label_set_text(label, "Te amo Camila");
     /* Size of the screen (if you use rotation 90 or 270, please set disp->driver->ver_res) */
     lv_obj_set_width(label, disp->driver->hor_res);
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 0);
 
+}
+
+lv_obj_t *scr_default;
+lv_obj_t *label_value_kp;
+lv_obj_t *label_value_ki;
+lv_obj_t *label_value_kd;
+lv_obj_t *label_value_sp;
+lv_obj_t *label_value_read;
+
+lv_obj_t *scr_updating;
+lv_obj_t *label_selected;
+lv_obj_t *label_incremen;
+lv_obj_t *label_usrValue;
+
+void init_screens(lv_disp_t *disp)
+{
+    static lv_style_t style_small;
+    scr_default  = lv_disp_get_scr_act(disp);
+    scr_updating = lv_obj_create(NULL);
+
+    lv_style_init(&style_small);
+    lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
+
+    label_value_kp = lv_label_create(scr_default);
+    label_value_ki = lv_label_create(scr_default);
+    label_value_kd = lv_label_create(scr_default);
+    label_value_sp = lv_label_create(scr_default);
+    label_value_read = lv_label_create(scr_default);
+
+    lv_obj_add_style(label_value_kp, &style_small, 0);
+    lv_label_set_long_mode(label_value_kp, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_value_kp, "carregando...");
+    lv_obj_set_width(label_value_kp, disp->driver->hor_res);
+    lv_obj_align(label_value_kp, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    lv_obj_add_style(label_value_ki, &style_small, 0);
+    lv_label_set_long_mode(label_value_ki, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_value_ki, "");
+    lv_obj_set_width(label_value_ki, disp->driver->hor_res);
+    lv_obj_align(label_value_ki, LV_ALIGN_TOP_LEFT, 0, 11);
+
+    lv_obj_add_style(label_value_kd, &style_small, 0);
+    lv_label_set_long_mode(label_value_kd, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_value_kd, "");
+    lv_obj_set_width(label_value_kd, disp->driver->hor_res);
+    lv_obj_align(label_value_kd, LV_ALIGN_TOP_LEFT, 0, 22);
+
+    lv_obj_add_style(label_value_sp, &style_small, 0);
+    lv_label_set_long_mode(label_value_sp, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_value_sp, "");
+    lv_obj_set_width(label_value_sp, disp->driver->hor_res);
+    lv_obj_align(label_value_sp, LV_ALIGN_TOP_LEFT, 0, 33);
+
+    lv_obj_add_style(label_value_read, &style_small, 0);
+    lv_label_set_long_mode(label_value_read, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_value_read, "");
+    lv_obj_set_width(label_value_read, disp->driver->hor_res);
+    lv_obj_align(label_value_read, LV_ALIGN_TOP_LEFT, 0, 44);
+
+
+    label_selected = lv_label_create(scr_updating);
+    label_incremen = lv_label_create(scr_updating);
+    label_usrValue = lv_label_create(scr_updating);
+
+    lv_label_set_long_mode(label_selected, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_selected, "<SELECTED>");
+    lv_obj_set_width(label_selected, disp->driver->hor_res);
+    lv_obj_align(label_selected, LV_ALIGN_TOP_MID, 0, 0);
+
+    lv_label_set_long_mode(label_usrValue, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_usrValue, "<value>");
+    lv_obj_set_width(label_usrValue, disp->driver->hor_res);
+    lv_obj_align(label_usrValue, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_add_style(label_incremen, &style_small, 0);
+    lv_label_set_long_mode(label_incremen, LV_LABEL_LONG_CLIP);
+    lv_label_set_text(label_incremen, "incremento: <increment>");
+    lv_obj_set_width(label_incremen, disp->driver->hor_res);
+    lv_obj_align(label_incremen, LV_ALIGN_BOTTOM_MID, 0, 0);
+
+    lv_scr_load(scr_default); //carrega a scr_default
 }
 
 
@@ -113,8 +208,8 @@ void init_display ()
         .monochrome = true,
         .rotation = {
             .swap_xy = false,
-            .mirror_x = false,
-            .mirror_y = false,
+            .mirror_x = true,
+            .mirror_y = true,
         }
     };
     lv_disp_t *disp = lvgl_port_add_disp(&disp_cfg);
@@ -124,7 +219,7 @@ void init_display ()
 
     ESP_LOGI(TAG, "Display LVGL Scroll Text");
 
-    example_lvgl_demo_ui(disp);
+    init_screens(disp);
 }
 
 
@@ -148,60 +243,108 @@ void tsk_graph (void *args)
     tskGraph_args_t *this;
     encmotDebugStream_t received;
     this = args;
+    int count = 0;
 
     assert (args != NULL);
     assert (this->logQueue != NULL);
 
-    //init_display();
+    init_display();
 
     while(true)
     {
         xQueueReceive(this->logQueue, &received, portMAX_DELAY);
 
-        printf(
-            "\n---------- PID controller job ----------------\n"
-            ">measurement(x1000):\t\t%e\n"
-            ">setpoint(x1000):\t%e\n"
-            // ">error:\t\t%e\n"
-            ">kp: %e\n"
-            ">ki: %e\n"
-            ">kd: %e\n"
-            // ">proportional:\t%e\n"
-            // ">integrator:\t\t%e\n"
-            // ">differentiator:\t\t%e\n"
-            ">out:\t\t%d\n"
-            "\n----------------------------------------------\n",
-            received.PID.measurement*1000,
-            received.PID.setpoint*1000,
-            // received.PID.error,
-            received.PID.Kp,
-            received.PID.Ki,
-            received.PID.Kd,
-            // received.PID.proportional,
-            // received.PID.integrator,
-            // received.PID.differentiator,
-            received.PID.out
-        );
-
-        if (received.PID.measurement > last_measurement)
+        switch (received.type)
         {
-            state = STATE_UP;
-        }
-        else
-        {
-            state = STATE_DOW;
-        }
+            case DEBUG_STREAM:
+                printf(
+                    "\n---------- PID controller job ----------------\n"
+                    ">measurement(x1000):\t\t%e\n"
+                    ">setpoint(x1000):\t%e\n"
+                    // ">error:\t\t%e\n"
+                    ">kp: %e\n"
+                    ">ki: %e\n"
+                    ">kd: %e\n"
+                    // ">proportional:\t%e\n"
+                    // ">integrator:\t\t%e\n"
+                    // ">differentiator:\t\t%e\n"
+                    ">out:\t\t%d\n"
+                    "\n----------------------------------------------\n",
+                    received.PID.measurement*1000,
+                    received.PID.setpoint*1000,
+                    // received.PID.error,
+                    received.PID.Kp,
+                    received.PID.Ki,
+                    received.PID.Kd,
+                    // received.PID.proportional,
+                    // received.PID.integrator,
+                    // received.PID.differentiator,
+                    received.PID.out
+                );
 
-        if (oldState == STATE_UP && state == STATE_DOW)
-        {
-            //ocorreu uma troca de derivada
-            printf(">Period_ms: %d", period*100);
-            period = 0;
-        }
+                if (count++ >= 30)
+                {
+                    lv_label_set_text_fmt(label_value_read, "read: %0.4f", received.PID.measurement);
+                    count=0;
+                }
 
-        last_measurement = received.PID.measurement;
-        oldState = state;
-        period++;
+                if (received.PID.measurement > last_measurement)
+                {
+                    state = STATE_UP;
+                }
+                else
+                {
+                    state = STATE_DOW;
+                }
+
+                if (oldState == STATE_UP && state == STATE_DOW)
+                {
+                    //ocorreu uma troca de derivada
+                    printf(">Period_ms: %d", period*100);
+                    period = 0;
+                }
+
+                last_measurement = received.PID.measurement;
+                oldState = state;
+                period++;
+
+            break;
+
+            case USR_KP:
+                lv_label_set_text_fmt(label_value_kp, "Kp:\t%0.4f", received.kp);
+                lv_scr_load(scr_default);
+                break;
+
+            case USR_KI:
+                lv_label_set_text_fmt(label_value_ki, "Ki:\t%0.4f", received.ki);
+                lv_scr_load(scr_default);
+                break;
+
+            case USR_KD:
+                lv_label_set_text_fmt(label_value_kd, "Kd:\t%0.4f", received.kd);
+                lv_scr_load(scr_default);
+                break;
+
+            case USR_SP:
+                lv_label_set_text_fmt(label_value_sp, "S.P.:\t%0.4f", received.sp);
+                lv_scr_load(scr_default);
+                break;
+
+            case USR_SEL:
+                lv_label_set_text(label_selected, received.sel);
+                lv_scr_load(scr_updating);
+                break;
+
+            case USR_INC:
+                lv_label_set_text_fmt(label_incremen, "incremento:\t%0.4f", received.inc);
+                lv_scr_load(scr_updating);
+                break;
+
+            case USR_VAL:
+                lv_label_set_text_fmt(label_usrValue, "%0.4f", received.usrVal);
+                lv_scr_load(scr_updating);
+                break;
+        }
     }
 }
 
@@ -212,4 +355,83 @@ void create_tsk_graph (tskGraph_args_t* tskInputArgs, UBaseType_t prioridade ,co
 
 
 
+void __update_inqueue (QueueHandle_t queue, encmotDebugStream_t *display)
+{
+    if (xQueueSend(queue, display, 0) != pdPASS)
+    {
+        ESP_LOGE(TAG, "LogQueue FULL!");
+    }
+}
 
+void update_newValue (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_VAL;
+    display.usrVal = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_increment (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_INC;
+    display.inc = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_pidDebugStream (QueueHandle_t queue, PIDControllerDebugStream_t value)
+{
+    encmotDebugStream_t display;
+    display.type = DEBUG_STREAM;
+    display.PID = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_KP (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_KP;
+    display.kp = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_KI (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_KI;
+    display.ki = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_KD (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_KD;
+    display.kd = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_SP (QueueHandle_t queue, float value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_SP;
+    display.sp = value;
+   
+    __update_inqueue(queue, &display);
+}
+
+void update_SEL (QueueHandle_t queue, const char *value)
+{
+    encmotDebugStream_t display;
+    display.type = USR_SEL;
+
+    strncpy(display.sel, value, sizeof(display.sel));
+   
+    __update_inqueue(queue, &display);
+}
