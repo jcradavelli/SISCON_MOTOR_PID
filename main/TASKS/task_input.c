@@ -77,7 +77,7 @@ static void tsk_input (void *args)
             update_newValue(this->logQueue, counter);
         }
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(100));
             
         counter_aux = encoder_get_enconderCount_raw(this->encoder); //se o encoder tiver um valor não multiplo de 4 (passo aprcial) esse passo é perdido
 
@@ -124,7 +124,7 @@ static void tsk_input (void *args)
                 butonsClear = false;
             }
 
-            if (!gpio_get_level(BUTTON_2))
+            if (!gpio_get_level(BUTTON_3))
             {
                 // aumenta o incremento
                 increment = increment * 10;
@@ -134,7 +134,7 @@ static void tsk_input (void *args)
                 update_increment(this->logQueue, increment);
             }
 
-            if (!gpio_get_level(BUTTON_3))
+            if (!gpio_get_level(BUTTON_2))
             {
                 // diminui o incremento
                 increment = increment / 10;

@@ -159,7 +159,7 @@ void init_display ()
         .sda_pullup_en      = GPIO_PULLUP_ENABLE,
         .scl_io_num         = EXAMPLE_PIN_NUM_SCL,          // select SCL GPIO specific to your project
         .scl_pullup_en      = GPIO_PULLUP_ENABLE,
-        .master.clk_speed   = 10000,                        // select frequency specific to your project
+        .master.clk_speed   = 350000,                        // select frequency specific to your project
         .clk_flags          = 0,                            // optional; you can use I2C_SCLK_SRC_FLAG_* flags to choose i2c source clock here
     };
     i2c_param_config(I2C_BUS_PORT, &bus_config);
