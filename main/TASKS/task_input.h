@@ -20,8 +20,8 @@ extern "C" {
 #define EXAMPLE_EC11_GPIO_A     34
 #define EXAMPLE_EC11_GPIO_B     35
 
-#define MOTOR_CONTROL_A         26
-#define MOTOR_CONTROL_B         27
+#define MOTOR_CONTROL_A         27
+#define MOTOR_CONTROL_B         26
 
 #define LED_OUT                 19
 
