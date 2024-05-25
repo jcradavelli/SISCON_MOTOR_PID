@@ -15,7 +15,7 @@
 #include "esp_timer.h"
 #include "driver/uart.h"
 #include "EncMot.h"
-#include "encoder.h"
+#include "Encoder.h"
 #include "motor.h"
 
 
