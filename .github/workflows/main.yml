@@ -29,4 +29,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: output_binaries
-        path: build/espnow_example.bin
+        path: /build/*.bin
