@@ -14,9 +14,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+        path: $GITHUB_WORKSPACE/project
         
     - name: esp-idf build
       uses: espressif/esp-idf-ci-action@v1
@@ -29,5 +30,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: output_binaries
-        path: /build/*.bin
+        path: $GITHUB_WORKSPACE/project/build/*.bin
         if-no-files-found: error
