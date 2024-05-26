@@ -13,7 +13,7 @@
 #include "driver/uart.h"
 
 
-#include "encoder.h"
+#include "Encoder.h"
 #include <string.h>
 #include <math.h>
 
