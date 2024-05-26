@@ -3,7 +3,7 @@
 
 | Supported Targets | ESP32 | ESP32-C6 | ESP32-H2 | ESP32-S2 | ESP32-S3 |
 | ----------------- | ----- | -------- | -------- | -------- | -------- |
-|                   |![example workflow](https://github.com/jcradavelli/SISCON_MOTOR_PID/actions/workflows/main.yml/badge.svg) | não testado | não testado | não testado | não testado |
+|                   | [![.github/workflows/main.yml](https://github.com/jcradavelli/SISCON_MOTOR_PID/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jcradavelli/SISCON_MOTOR_PID/actions/workflows/main.yml) | não testado | não testado | não testado | não testado |
 
 
 
