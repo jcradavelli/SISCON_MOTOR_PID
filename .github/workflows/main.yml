@@ -23,7 +23,7 @@ jobs:
       with:
         esp_idf_version: v5.1
         target: esp32
-        path: ''
+        path: '.'
         
     - name: Archive code coverage results
       uses: actions/upload-artifact@v4
