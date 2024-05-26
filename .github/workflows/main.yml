@@ -30,3 +30,4 @@ jobs:
       with:
         name: output_binaries
         path: /build/*.bin
+        if-no-files-found: error
