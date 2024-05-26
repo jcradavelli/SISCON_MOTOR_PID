@@ -17,14 +17,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-        path: $GITHUB_WORKSPACE/project
+        path: project
         
     - name: esp-idf build
       uses: espressif/esp-idf-ci-action@v1
       with:
         esp_idf_version: v5.1
         target: esp32
-        path: 'project/'
+        path: './roject'
         
     - name: Archive code coverage results
       uses: actions/upload-artifact@v4
