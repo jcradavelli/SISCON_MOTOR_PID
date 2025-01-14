@@ -32,7 +32,8 @@ void stop_mottor (encmot_h encmot)
 
 // static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
 // static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
-static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+//static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+static float kp=1.5, ki=0.0, kd = 0.0, setPoint = 0;
 
 static float* selected = &kp;
 static float increment = 1;
@@ -63,6 +64,8 @@ static void tsk_input (void *args)
     update_KI(this->logQueue, ki);  
     update_KD(this->logQueue, kd);  
     update_SP(this->logQueue, setPoint);  
+
+    encmot_set_speed (this->encmot, 0.1);
 
     while (1)
     {
@@ -204,9 +207,9 @@ void create_tsk_input (tskInput_args_t* tskInputArgs, UBaseType_t prioridade ,co
         .watchpoint_superior                =   0,
         .example_pcnt_on_reach              =   NULL,
         .example_pcnt_on_reach_user_data    =   NULL,
-        .gear_ratio_numerator               =   1,
-        .gear_ration_denominator            =   1,
+        // .gear_ratio_numerator               =   1,
+        // .gear_ration_denominator            =   1,
     };
     tskInputArgs->encoder = encoder_attach(config);
-    xTaskCreatePinnedToCore(tsk_input, "input", /* Stack Size = */ 2048 , tskInputArgs, prioridade, NULL, xCoreID);
+    xTaskCreatePinnedToCore(tsk_input, "input", /* Stack Size = */ 10*2048 , tskInputArgs, prioridade, NULL, xCoreID);
 }

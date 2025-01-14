@@ -46,28 +46,40 @@ static const char *TAG = "example";
 // https://github.com/espressif/esp-idf/blob/v5.2.1/examples/peripherals/lcd/i2c_oled/main/i2c_oled_example_main.c
 
 
+#define USE_SERVO_24H55M020
+//#define USE_SERVO_DC_GA25
+
+
 
 tskInput_args_t tskInputArgs;
 tskGraph_args_t tskGraphArgs;
 tskEncmot_args_t tskEncmotArgs;
+
+#ifdef USE_SERVO_DC_GA25
 static float kp=5000.0, ki=15000.0, kd = 50.0;
+#endif
+
+#ifdef USE_SERVO_24H55M020
+static float kp=0.07, ki=0.01, kd = 0.0;
+#endif
+
 void app_main(void)
 {
 
     bool satured = false;
-    
+
+#ifdef USE_SERVO_DC_GA25    
     const encmot_config_t encmot_contig     = {
         .encoder_config = {
             .gpio_encoder_a                     = EXAMPLE_EC11_GPIO_A,
             .gpio_encoder_b                     = EXAMPLE_EC11_GPIO_B,
             .max_glitch_ns                      = 100,
-            .gear_ratio_numerator               = 49,
-            .gear_ration_denominator            = 20000,
+            // .gear_ratio_numerator               = 49,
+            // .gear_ration_denominator            = 20000,
         },
         .motor_config = {
-            .motor_control_a                    = MOTOR_CONTROL_A,
-            .motor_control_b                    = MOTOR_CONTROL_B,
-
+            .DC_GA25.motor_control_a            = MOTOR_CONTROL_A,
+            .DC_GA25.motor_control_b            = MOTOR_CONTROL_B,
         },
         .pid_config = {
             .kp                                 = kp,
@@ -77,6 +89,44 @@ void app_main(void)
             .isSatured                          = &satured,
         }
     };
+#endif
+
+#ifdef USE_SERVO_24H55M020
+    const encmot_config_t encmot_contig     = {
+        .encoder_config = {
+            .gpio_encoder_a                     = GPIO_NUM_5,
+            .gpio_encoder_b                     = GPIO_NUM_4,
+            .max_glitch_ns                      = 100,
+            // .gear_ratio_numerator               = 49,
+            // .gear_ration_denominator            = 20000,
+            .pulses_per_revolution              = 100,
+        },
+        .motor_config = {
+            .model                              = MOTOR_MODEL_SERVO_24H55M020,
+            .SERVO_24H55M020 = {
+                .break_gpio                     = GPIO_NUM_1,
+                .cw_ccw_gpio                    = GPIO_NUM_21,
+                .speed_gpio                     = GPIO_NUM_2,
+                .start_stop_gpio                = GPIO_NUM_42,
+                .status_gpio                    = GPIO_NUM_19,
+                .speed_max                      = 1.39,
+                .speed_min                      = 0.00863,
+                .speed_offset                   = 0,
+                .speed_gain                     = 39834,
+                .timer_num                      = LEDC_TIMER_0,
+            },
+        },
+        .pid_config = {
+            .kp                                 = kp,
+            .ki                                 = ki,
+            .kd                                 = kd,           
+            .samplerate_ms                      = 130,
+            .isSatured                          = &satured,
+        }
+    };
+#endif
+
+
     encmot_h encmot = NULL;
     encmot = encmot_attach(encmot_contig);
 
@@ -119,6 +169,6 @@ void app_main(void)
     create_tsk_encmot (&tskEncmotArgs, configMAX_PRIORITIES/2+1 ,1);
 
 
-    esp_log_level_set("encoder", ESP_LOG_NONE);
+    //esp_log_level_set("encoder", ESP_LOG_ALL);
 
 }

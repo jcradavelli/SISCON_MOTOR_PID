@@ -9,19 +9,19 @@ extern "C" {
 #include "tasks.h"
 #include "EncMot.h"
 
-#define BUTTON_1                21
-#define BUTTON_2                22
-#define BUTTON_3                23
-#define BUTTON_4                5
+#define BUTTON_1                12// 21
+#define BUTTON_2                13// 22
+#define BUTTON_3                14// 23
+#define BUTTON_4                9// 5
 
-#define ENCODER_P               18
-#define ENCODER_N               19
+#define ENCODER_P               11//  18
+#define ENCODER_N               10//  19
 
-#define EXAMPLE_EC11_GPIO_A     34
-#define EXAMPLE_EC11_GPIO_B     35
+#define EXAMPLE_EC11_GPIO_A     34// 34
+#define EXAMPLE_EC11_GPIO_B     34// 35
 
-#define MOTOR_CONTROL_A         27
-#define MOTOR_CONTROL_B         26
+// #define MOTOR_CONTROL_A         27
+// #define MOTOR_CONTROL_B         26
 
 #define LED_OUT                 19
 

@@ -35,11 +35,11 @@ typedef struct
 	/* Derivative low-pass filter time constant */
 	double tau;
 	/* Output limits */
-	int limMin;
-	int limMax;
+	double limMin;
+	double limMax;
 	/* Integrator limits */
-	int limMinInt;
-	int limMaxInt;
+	double limMinInt;
+	double limMaxInt;
 	/* Sample time (in seconds) */
 	double T;
 	/* Controller "memory" */
@@ -49,7 +49,7 @@ typedef struct
 	double prevMeasurement;		/* Required for differentiator */
 	double oldSetpoint;
 	/* Controller output */
-	int out;
+	double out;
 } PIDController_t;
 
 
@@ -85,10 +85,10 @@ void PIDController_Init
 	double Ki,
 	double Kd,
 	double tau,
-	int limMin,
-	int limMax,
-	int limMinInt,
-	int limMaxInt,
+	double limMin,
+	double limMax,
+	double limMinInt,
+	double limMaxInt,
 	double T
 ) 
 {
@@ -169,16 +169,28 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	/*
 	* Compute output and apply limits
 	*/
-    this->out = proportional + this->integrator + this->differentiator;
-    if (this->out > this->limMax) {
-        this->out = this->limMax;
-    } else if (this->out < this->limMin) {
-        this->out = this->limMin;
-    }
+	if (setpoint < 0.0019 && setpoint > -0.0019)
+	{
+		// TODO: Resolver o problema de hardware e remover essa condição
+		// Desabilita a saída se o setpoint estiver muito perto de zero
+		// Isso é feito para reduzir o aquecimento sobre o transistor de saida
+		this->out=0;
+	}
+	else
+	{
+		this->out = proportional + this->integrator + this->differentiator;
+		if (this->out > this->limMax) {
+			this->out = this->limMax;
+		} else if (this->out < this->limMin) {
+			this->out = this->limMin;
+		}
+	}
 
 	/* Store error and measurement for later use */
     this->prevError       = error;
     this->prevMeasurement = measurement;
+
+
 
 	/* Debug */
 	if (debugOut != NULL)
@@ -251,3 +263,4 @@ void PIDController_reset (PIDController_h pid)
 
 	this->out 				= 0.0f;
 }
+

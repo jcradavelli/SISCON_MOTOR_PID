@@ -31,10 +31,10 @@ static const char *TAG = "EncMot";
 
 // TODO: Passar essa configuração como parâmetro
 #define PID_TAU                 0.02f
-#define PID_LIM_MIN             -400.0f
-#define PID_LIM_MAX             400.0f
-#define PID_LIM_MIN_INT         -300.0f
-#define PID_LIM_MAX_INT         300.0f
+#define PID_LIM_MIN             -1.0f   // valor mínimo na saida do PID
+#define PID_LIM_MAX             1.0f    // Valor máximo na saída do PID
+#define PID_LIM_MIN_INT         -0.5f   // valor mínimo no termo integral do PID
+#define PID_LIM_MAX_INT         0.5f    // Valor máximo no termo integral do PID
 
 
 typedef enum controlerMode_
@@ -96,17 +96,13 @@ encmot_h encmot_attach (encmot_config_t config)
         .watchpoint_superior                =   WATCHPOINT_SUPERIOR,
         .example_pcnt_on_reach              =   example_pcnt_on_reach,
         .example_pcnt_on_reach_user_data    =   queue,
-        .gear_ratio_numerator               =   config.encoder_config.gear_ratio_numerator,
-        .gear_ration_denominator            =   config.encoder_config.gear_ration_denominator,
+        // .gear_ratio_numerator               =   config.encoder_config.gear_ratio_numerator,
+        // .gear_ration_denominator            =   config.encoder_config.gear_ration_denominator,
     };
     aux.encoder = encoder_attach (encoder_config);
     
     // conecta os drivers de motores
-    motor_config_t motor_config = {
-        .motor_control_a                    =   config.motor_config.motor_control_a,
-        .motor_control_b                    =   config.motor_config.motor_control_b
-    };
-    aux.motor   = motor_attach  (motor_config);
+    aux.motor   = motor_attach  (config.motor_config);
     motor_set_speed(aux.motor, 0);
 
     // Conecta o controlador PID
@@ -114,7 +110,7 @@ encmot_h encmot_attach (encmot_config_t config)
     PIDController_Init(pid,config.pid_config.kp,config.pid_config.ki,config.pid_config.kd,PID_TAU,PID_LIM_MIN, PID_LIM_MAX, PID_LIM_MIN_INT, PID_LIM_MAX_INT, config.pid_config.samplerate_ms/1000.0);
 
     aux.PIDcontroller   = pid;
-    aux.setpoint    = 0; 
+    aux.setpoint        = 0; 
     aux.pid_measure     = 0;
     aux.isSatured       = config.pid_config.isSatured;
     aux.contmode        = CONTMODE_OPEN_LOOP;

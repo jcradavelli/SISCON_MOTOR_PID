@@ -59,8 +59,7 @@ typedef struct encoder_config_{
     int watchpoint_superior;    //!< Valor de contágem que gera uma chamada de callback
     pcnt_event_on_reach_callback_h example_pcnt_on_reach; //!< Endereço de função de calback ver ::pcnt_event_on_reach_callback_h
     void *example_pcnt_on_reach_user_data;  //!< Parâmetro enviado para a callback
-    int gear_ratio_numerator;           //!< numerador da fração ratio (PULSOS/voltas)
-    int gear_ration_denominator;    //!< Denominador da fração ration (pulsos/VOLTAS)
+    int pulses_per_revolution;           //!< numero de PULSOS/volta - use -1 para usar os valores em contagens
 }encoder_config_t;
 
 /**
@@ -69,7 +68,7 @@ typedef struct encoder_config_{
  */
 typedef struct encoder_sample_{
     int64_t time;
-    int     count;
+    double     count;
     float   speed;
     float   acele;
 }encoder_sample_t;

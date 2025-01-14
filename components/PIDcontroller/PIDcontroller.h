@@ -28,7 +28,7 @@ typedef struct PIDControllerDebugStream_
 	double proportional;
 	double integrator;
 	double differentiator;
-	int	   out;
+	double out;
 }PIDControllerDebugStream_t;
 
 typedef void* PIDController_h;
@@ -63,7 +63,7 @@ int PIDController_delete(PIDController_h pid);
  * @param T período de execução da função update
  */
 void PIDController_Init (PIDController_h pid, double Kp, double Ki, double Kd, double tau, 
-						int limMin, int limMax, int limMinInt, int limMaxInt, double T);
+						double limMin, double limMax, double limMinInt, double limMaxInt, double T);
 
 /**
  * @brief Executa o algorítmo de controle uma vez, essa função deve sewr chamada recorrentemente

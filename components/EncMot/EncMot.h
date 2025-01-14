@@ -23,6 +23,8 @@ extern "C" {
 #include "motor.h"
 #include "PIDcontroller.h"
 
+#include "motor.h"
+
 
 typedef enum info_type_
 {
@@ -82,22 +84,13 @@ typedef struct encmot_config_{
      * @brief Configurações do encoder definidas pela aplicação
      * 
      */
-    struct {
-        int gpio_encoder_a;                                     //!< Número do GPIO do encoder canal A
-        int gpio_encoder_b;                                     //!< Número do GPIO do encoder canal B
-        int max_glitch_ns;                                      //!< Filtro de 'glitch' em ns. Pulsos com duração menor que esse valor são ignorados
-        int gear_ratio_numerator;                               //!< numerador da fração ratio (PULSOS/voltas)
-        int gear_ration_denominator;                            //!< Denominador da fração ration (pulsos/VOLTAS)
-    }encoder_config;
+    encoder_config_t encoder_config;
 
     /**
      * @brief Configurações do motor definidas pela aplicação
      * 
      */
-    struct{
-        int motor_control_a;
-        int motor_control_b;
-    }motor_config;
+    motor_config_t  motor_config;
 
     /**
      * @brief Configurações do controlador PID definidas pela aplicação

@@ -84,7 +84,7 @@ void init_screens(lv_disp_t *disp)
     scr_updating = lv_obj_create(NULL);
 
     lv_style_init(&style_small);
-    lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
+    lv_style_set_text_font(&style_small, &lv_font_montserrat_10); //TODO: Add font 10
 
     label_value_kp = lv_label_create(scr_default);
     label_value_ki = lv_label_create(scr_default);
@@ -259,8 +259,8 @@ void tsk_graph (void *args)
             case DEBUG_STREAM:
                 printf(
                     "\n---------- PID controller job ----------------\n"
-                    ">measurement(x1000):\t\t%e\n"
-                    ">setpoint(x1000):\t%e\n"
+                    ">measurement:\t\t%e\n"
+                    ">setpoint:\t%e\n"
                     // ">error:\t\t%e\n"
                     ">kp: %e\n"
                     ">ki: %e\n"
@@ -268,10 +268,10 @@ void tsk_graph (void *args)
                     // ">proportional:\t%e\n"
                     // ">integrator:\t\t%e\n"
                     // ">differentiator:\t\t%e\n"
-                    ">out:\t\t%d\n"
+                    ">out:\t\t%e\n"
                     "\n----------------------------------------------\n",
-                    received.PID.measurement*1000,
-                    received.PID.setpoint*1000,
+                    received.PID.measurement,
+                    received.PID.setpoint,
                     // received.PID.error,
                     received.PID.Kp,
                     received.PID.Ki,
@@ -284,7 +284,7 @@ void tsk_graph (void *args)
 
                 if (count++ >= 30)
                 {
-                    lv_label_set_text_fmt(label_value_read, "read: %0.4f", received.PID.measurement);
+                    lv_label_set_text_fmt(label_value_read, "read: %0.5f", received.PID.measurement);
                     count=0;
                 }
 

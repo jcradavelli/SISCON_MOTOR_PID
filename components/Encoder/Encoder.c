@@ -25,10 +25,12 @@ typedef struct encoder_{
     pcnt_unit_handle_t      pcnt_unit;
     pcnt_channel_handle_t   pcnt_chan_a;
     pcnt_channel_handle_t   pcnt_chan_b;
-    int gear_ratio_numerator;               //!< numerador da fração ratio (PULSOS/voltas)
-    int gear_ration_denominator;            //!< Denominador da fração ration (pulsos/VOLTAS)
+    // int gear_ratio_numerator;               //!< numerador da fração ratio (PULSOS/voltas)
+    // int gear_ration_denominator;            //!< Denominador da fração ration (pulsos/VOLTAS)
     int running_counter;
     encoder_sample_t last_sample;
+
+    double encoderGain;                         //!< Ganho que converte a contagem de pulsos em deslocamento (radianos)
 }encoder_t;
 
 static encoder_t __encoder_attach 
@@ -43,8 +45,9 @@ static encoder_t __encoder_attach
     int watchpoint_superior,
     pcnt_event_on_reach_callback_h example_pcnt_on_reach,
     void *example_pcnt_on_reach_user_data,
-    int gear_ratio_numerator,           //!< numerador da fração ratio (VOLTAS/pulsos)
-    int gear_ration_denominator    //!< Denominador da fração ration (voltas/PULSOS)
+    int pulses_per_revolution
+    // int gear_ratio_numerator,           //!< numerador da fração ratio (VOLTAS/pulsos)
+    // int gear_ration_denominator    //!< Denominador da fração ration (voltas/PULSOS)
 )
 {
     encoder_t retval = {0};
@@ -115,8 +118,13 @@ static encoder_t __encoder_attach
     retval.pcnt_chan_a = pcnt_chan_a;
     retval.pcnt_chan_b = pcnt_chan_b;
 
-    retval.gear_ratio_numerator = gear_ratio_numerator;
-    retval.gear_ration_denominator = gear_ration_denominator;
+    if (pulses_per_revolution < 0)
+        retval.encoderGain = 1;
+    else
+        retval.encoderGain = pulses_per_revolution*M_PI/180.0;
+
+    // retval.gear_ratio_numerator = gear_ratio_numerator;
+    // retval.gear_ration_denominator = gear_ration_denominator;
 
     return(retval);
 }
@@ -148,8 +156,9 @@ encoder_h encoder_attach (encoder_config_t config)
         config.watchpoint_superior,
         config.example_pcnt_on_reach,
         config.example_pcnt_on_reach_user_data,
-        config.gear_ratio_numerator,
-        config.gear_ration_denominator
+        config.pulses_per_revolution
+        // config.gear_ratio_numerator,
+        // config.gear_ration_denominator
     );
     memcpy(object, &aux, sizeof(aux));
 
@@ -213,7 +222,7 @@ void encoder_job (encoder_h handler)
 {
     encoder_t *object = handler;
     static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;
-    int count;
+    double count;
     float speed=0;
     float acele;
     float jerk;
@@ -224,49 +233,49 @@ void encoder_job (encoder_h handler)
 
     // Faz a aquisição da amostra
     taskENTER_CRITICAL(&my_spinlock);
-    count   = encoder_get_enconderCount_raw(handler);
+    count   = encoder_get_enconderCount_raw(handler) * 15707.96327;
     time    = esp_timer_get_time();
     taskEXIT_CRITICAL(&my_spinlock);
 
 
 
     // Calcula as derivadas
-    dtime = time - object->last_sample.time;
-    ESP_LOGE(TAG,"\n>debug:%d\r\n",(count - object->last_sample.count));
+    dtime = (time - object->last_sample.time);
+    ESP_LOGE(TAG,"\n>debug:%f\r\n",(count - object->last_sample.count));
     ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
-    if (abs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
+    if (abs(count - object->last_sample.count) > (SHRT_MAX/2)* 15707.96327) // Ocorreu overflow ou underflow na contágem?
     {
-        ESP_LOGE(TAG,"\n>count:%d\r\n",count);
-        ESP_LOGE(TAG,"\n>object->last_sample.count:%d\r\n",object->last_sample.count);
+        ESP_LOGE(TAG,"\n>count:%f\r\n",count);
+        ESP_LOGE(TAG,"\n>object->last_sample.count:%f\r\n",object->last_sample.count);
         ESP_LOGE(TAG,"\n>SHRT_MIN:%d\r\n",SHRT_MIN);
         ESP_LOGE(TAG,"\n>SHRT_MAX:%d\r\n",SHRT_MAX);
 
         if (count > object->last_sample.count) // overflow?
         {
-            object->last_sample.count += SHRT_MAX;
+            object->last_sample.count += SHRT_MAX* 15707.96327;
             speed = (float)(count - object->last_sample.count)/(dtime);
         }
         else //underflow!
         {
-            object->last_sample.count += SHRT_MIN; //ok
+            object->last_sample.count += SHRT_MIN* 15707.96327; //ok
             speed = (float)(count - object->last_sample.count)/(dtime);
         }
-        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
+        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
     }
     else
     {
-        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
+        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
         speed = (float)(count - object->last_sample.count)/(dtime);
     }
     acele = (speed - object->last_sample.speed)/(dtime);
     jerk  = (acele - object->last_sample.acele)/(dtime);
 
     // Debug dos dados de encoder
-    ESP_LOGD(TAG,"\n>time:%d us\r\n",dtime);
-    ESP_LOGD(TAG,"\n>count:%d\r\n",count);
-    ESP_LOGD(TAG,"\n>Speed:%0.20e count/us\r\n",speed);
-    ESP_LOGD(TAG,"\n>acele:%0.20e count/us²\r\n",acele);
-    ESP_LOGD(TAG,"\n>jerk:%0.20e count/us³\r\n",jerk);
+    ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
+    ESP_LOGI(TAG,"\n>count:%f °\r\n",count);
+    ESP_LOGI(TAG,"\n>Speed:%0.20e °/s\r\n",speed);
+    ESP_LOGI(TAG,"\n>acele:%0.20e °/s²\r\n",acele);
+    ESP_LOGI(TAG,"\n>jerk:%0.20e °/s³\r\n",jerk);
 
     // Atualiza os valores
     object->last_sample.time    = time;
