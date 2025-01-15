@@ -22,6 +22,8 @@
 #include "task_input.h"
 #include "task_encmot.h"
 #include "task_graph.h"
+#include "myConsole.h"
+#include "Version_tools.h"
 
 static const char *TAG = "example";
 
@@ -54,6 +56,7 @@ static const char *TAG = "example";
 tskInput_args_t tskInputArgs;
 tskGraph_args_t tskGraphArgs;
 tskEncmot_args_t tskEncmotArgs;
+tskConsole_args_t tskConsoleArgs;
 
 #ifdef USE_SERVO_DC_GA25
 static float kp=5000.0, ki=15000.0, kd = 50.0;
@@ -126,6 +129,19 @@ void app_main(void)
     };
 #endif
 
+    const tskConsole_args_t console_config = {
+        .gretings = "\n\n\n\n\n\n" strVERSION_GIT_TAG "\n\n"
+                    "==============================================================================\n\n\n"
+                    "        ## ##     ## ##       ####  #######     ########  ######   ######     \n"
+                    "        ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
+                    "        ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+                    "        ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+                    "  ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
+                    "  ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
+                    "   ######   #######  ######## ####  #######        ##     ######   ######     \n\n\n"
+                    "==============================================================================\n\n\n",
+    };
+
 
     encmot_h encmot = NULL;
     encmot = encmot_attach(encmot_contig);
@@ -167,6 +183,8 @@ void app_main(void)
     tskEncmotArgs.encmot = encmot;
     tskEncmotArgs.logQueue = LogQueue;
     create_tsk_encmot (&tskEncmotArgs, configMAX_PRIORITIES/2+1 ,1);
+
+    create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
     //esp_log_level_set("encoder", ESP_LOG_ALL);

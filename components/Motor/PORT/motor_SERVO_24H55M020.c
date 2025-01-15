@@ -13,6 +13,9 @@
 #define LEDC_DUTY               (1) // Set duty to 50%. (2 ** 13) * 50% = 4096
 #define LEDC_FREQUENCY          (16000) // Frequency in Hertz. Set frequency at 4 kHz
 
+#define FREQ_MAX                (20000) // 20KHz
+#define FREQ_MIN                (300)   // 300Hz
+
 // #define speed_gpio          (2) // MCU OUTPUT speed singnal
 // #define enable_gpio         (23) // MCU OUTPUT
 // #define break_gpio          (22) // MCU OUTPUT
@@ -184,35 +187,49 @@ void motor_servo_24h55m020_release (motor_hand_h handler)
     ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
 }
 
+/**
+ * @brief 
+ * 
+ * Deve receber um valor entre -1 e 1
+ * 
+ * @param handler 
+ * @param speed 
+ */
 void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
 {
     motor_hand_t *object = handler;
     assert(handler!=NULL);
+
+    uint32_t freq_hz = fabs(speed) * FREQ_MAX;
+
     ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,1));
 
-    ESP_LOGI(TAG, "Set Speed: %0.2f", speed);
+    ESP_LOGI(TAG, "Set Speed: %0.2f %% | %lu Hz", speed, freq_hz);
 
-    if (fabs(speed) > object->speed_max)
+
+
+    if (freq_hz > FREQ_MAX)
     {
         ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade maxima (%0.4f)", speed, object->speed_max);
-        speed = object->speed_max;
+        freq_hz = FREQ_MAX;
+
     }
-    else if (fabs(speed) < object->speed_min)
+    else if (freq_hz < FREQ_MIN)
     {
         ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade minima (%0.4f)", speed, object->speed_min);
-        speed = object->speed_min;
+
+        //TODO: Parar o motor!
+        //ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+        //ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,0));
+
+        return;
     }
 
-    uint32_t freq_hz = speed * object->speed_gain - object->speed_offset ;
-
     freq_hz = 20000;
-
-    ESP_LOGI(TAG, "Frequencia de controle: %ld Hz", freq_hz);
 
 
     if (speed < 0)
     {
-        speed = -1 * speed;
         motor_servo_24h55m020_run_cw(handler);
         ESP_ERROR_CHECK(ledc_set_freq(LEDC_MODE, object->timer_num, freq_hz));
     }

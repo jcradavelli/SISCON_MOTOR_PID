@@ -42,7 +42,13 @@
     "motor.h": "c",
     "motor_servo_24h55m020": "cpp",
     "task_graph.h": "c",
-    "gpio_num.h": "c"
+    "gpio_num.h": "c",
+    "linenoise.h": "c",
+    "argtable3.h": "c",
+    "esp_console.h": "c",
+    "string.h": "c",
+    "esp_flash.h": "c",
+    "fcntl.h": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {

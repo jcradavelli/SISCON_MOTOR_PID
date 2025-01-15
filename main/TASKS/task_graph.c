@@ -257,7 +257,8 @@ void tsk_graph (void *args)
         switch (received.type)
         {
             case DEBUG_STREAM:
-                printf(
+                ESP_LOGI(
+                    TAG,
                     "\n---------- PID controller job ----------------\n"
                     ">measurement:\t\t%e\n"
                     ">setpoint:\t%e\n"
@@ -300,7 +301,7 @@ void tsk_graph (void *args)
                 if (oldState == STATE_UP && state == STATE_DOW)
                 {
                     //ocorreu uma troca de derivada
-                    printf(">Period_ms: %d", period*100);
+                    ESP_LOGI(TAG,">Period_ms: %d", period*100);
                     period = 0;
                 }
 

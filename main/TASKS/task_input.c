@@ -56,9 +56,9 @@ static void tsk_input (void *args)
     encmot_tune_pid(this->encmot,kp,ki,kd);
 
 
-    printf(">Selected: kp|t\r\n");
-    printf(">UsrEncoder: %4.4f\r\n", counter);
-    printf(">Increment: %4.4f|t\r\n", increment);
+    ESP_LOGI(TAG,">Selected: kp|t\r\n");
+    ESP_LOGI(TAG,">UsrEncoder: %4.4f\r\n", counter);
+    ESP_LOGI(TAG,">Increment: %4.4f|t\r\n", increment);
 
     update_KP(this->logQueue, kp);  
     update_KI(this->logQueue, ki);  
@@ -73,8 +73,8 @@ static void tsk_input (void *args)
         if (update == true)
         {
             update = false;
-            printf(">UsrEncoder: %4.4f\r\n", counter);
-            printf(">Increment: %4.4f|t\r\n", increment);
+            ESP_LOGI(TAG,">UsrEncoder: %4.4f\r\n", counter);
+            ESP_LOGI(TAG,">Increment: %4.4f|t\r\n", increment);
 
             update_increment(this->logQueue, increment);
             update_newValue(this->logQueue, counter);
@@ -154,25 +154,25 @@ static void tsk_input (void *args)
 
                 if (selected == &setPoint) 
                 {
-                    printf(">Selected: kp|t\r\n");
+                    ESP_LOGI(TAG,">Selected: kp|t\r\n");
                     selected = &kp;
                     update_SEL(this->logQueue, "kp");
                 }
                 else if (selected == &kp)
                 {
-                    printf(">Selected: ki|t\r\n");
+                    ESP_LOGI(TAG,">Selected: ki|t\r\n");
                     selected = &ki;
                     update_SEL(this->logQueue, "ki");
                 } 
                 else if (selected == &ki) 
                 {
-                    printf(">Selected: kd|t\r\n");
+                    ESP_LOGI(TAG,">Selected: kd|t\r\n");
                     selected = &kd;
                     update_SEL(this->logQueue, "kd");
                 }
                 else if (selected == &kd) 
                 {
-                    printf(">Selected: setPoint|t\r\n");
+                    ESP_LOGI(TAG,">Selected: setPoint|t\r\n");
                     selected = &setPoint;
                     update_SEL(this->logQueue, "setPoint");
                 }

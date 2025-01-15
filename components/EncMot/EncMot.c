@@ -30,7 +30,7 @@ static const char *TAG = "EncMot";
 
 
 // TODO: Passar essa configuração como parâmetro
-#define PID_TAU                 0.02f
+#define PID_TAU                 0.02f   // Coeficiente do filtro derivativo do PID
 #define PID_LIM_MIN             -1.0f   // valor mínimo na saida do PID
 #define PID_LIM_MAX             1.0f    // Valor máximo na saída do PID
 #define PID_LIM_MIN_INT         -0.5f   // valor mínimo no termo integral do PID
@@ -212,6 +212,8 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
     encoder_job(object->encoder);
     encoder_sample = encoder_get_lastSample(object->encoder);
 
+    //TODO: normaliza a velocidade entre -1 e 1
+
     switch(object->contmode)
     {
         case CONTMODE_OPEN_LOOP:
@@ -219,8 +221,8 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
             break;
 
         case CONTMODE_PID_SPEED:
-            controller_output = __contmode_pid_speed(handler, encoder_sample, PIDStream);
-            motor_set_speed(object->motor, controller_output);
+            controller_output = __contmode_pid_speed(handler, encoder_sample, PIDStream); // retorna um valor entre -1 e 1
+            motor_set_speed(object->motor, controller_output);  // Configura um valor entre -1 e 1
             break;
     }
 
