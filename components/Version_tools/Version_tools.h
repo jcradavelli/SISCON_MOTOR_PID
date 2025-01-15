@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-const char* strVERSION_GIT_TAG = VERSION_GIT_TAG;
+extern const char * version;
 
 #ifdef __cplusplus
 }

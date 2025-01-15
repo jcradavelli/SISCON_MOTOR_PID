@@ -23,7 +23,8 @@ extern "C" {
 
 typedef struct tskConsole_args_
 {
-    char* gretings;
+    const char* gretings;
+    const char* version;
 }tskConsole_args_t;
 
 

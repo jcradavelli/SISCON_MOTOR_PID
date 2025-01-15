@@ -1,29 +1,33 @@
 idf_component_register(SRCS "Version_tools.c"
                        REQUIRES
-                       INCLUDE_DIRS "."
+                       INCLUDE_DIRS "." 
                       )
 
 
 
-
-# Define a função para obter a tag mais recente do Git
-add_custom_target(get_git_tag ALL
-    COMMAND ${CMAKE_COMMAND} -E echo "Obtendo a tag mais recente do Git..."
-    # COMMAND git describe --tags > ${CMAKE_BINARY_DIR}/git_tag.txt
+# Obtenha a tag mais recente do Git
+execute_process(
+    COMMAND git describe --tags
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-
-# Leia o conteúdo do arquivo gerado
-file(READ ${CMAKE_BINARY_DIR}/git_tag.txt VERSION_GIT_TAG)
-string(STRIP "${VERSION_GIT_TAG}" VERSION_GIT_TAG)
 
 # Verifique se a variável foi obtida corretamente
-if(NOT VERSION_GIT_TAG)
-    set(VERSION_GIT_TAG "undefined")
+if(NOT GIT_TAG)
+    set(GIT_TAG "undefined")
 endif()
 
-# Adicione a definição de compilação
-add_compile_definitions(
-    VERSION_GIT_TAG="${VERSION_GIT_TAG}"
-)
+# Função para adicionar a definição de compilação a todas as targets
+function(add_git_tag_to_all_targets)
+    get_property(targets DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(target IN LISTS targets)
+        if (TARGET ${target})
+            target_compile_definitions(${target} PRIVATE GIT_TAG="${GIT_TAG}")
+        endif()
+    endforeach()
+endfunction()
 
+# Adicionar a definição de compilação a todas as targets
+add_git_tag_to_all_targets()
 

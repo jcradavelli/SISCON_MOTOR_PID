@@ -177,7 +177,8 @@ void create_tsk_console (tskConsole_args_t* tskConsolArgs, UBaseType_t prioridad
 
     printf("\n"
            "%s"
-           "Type 'help' to get the list of commands.\n", tskConsolArgs->gretings);
+           "Version: %s\n"
+           "Type 'help' to get the list of commands.\n", tskConsolArgs->gretings, tskConsolArgs->version);
 
     /* Figure out if the terminal supports escape sequences */
     int probe_status = linenoiseProbe();
