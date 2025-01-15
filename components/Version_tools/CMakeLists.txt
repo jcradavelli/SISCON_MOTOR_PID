@@ -7,7 +7,7 @@ idf_component_register(SRCS "Version_tools.c"
 
 # Obtenha a tag mais recente do Git
 execute_process(
-    COMMAND git describe --tags
+    COMMAND git describe --tags --dirty --always
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE GIT_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE
