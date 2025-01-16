@@ -169,22 +169,13 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	/*
 	* Compute output and apply limits
 	*/
-	if (setpoint < 0.0019 && setpoint > -0.0019)
-	{
-		// TODO: Resolver o problema de hardware e remover essa condição
-		// Desabilita a saída se o setpoint estiver muito perto de zero
-		// Isso é feito para reduzir o aquecimento sobre o transistor de saida
-		this->out=0;
+	this->out = proportional + this->integrator + this->differentiator;
+	if (this->out > this->limMax) {
+		this->out = this->limMax;
+	} else if (this->out < this->limMin) {
+		this->out = this->limMin;
 	}
-	else
-	{
-		this->out = proportional + this->integrator + this->differentiator;
-		if (this->out > this->limMax) {
-			this->out = this->limMax;
-		} else if (this->out < this->limMin) {
-			this->out = this->limMin;
-		}
-	}
+
 
 	/* Store error and measurement for later use */
     this->prevError       = error;

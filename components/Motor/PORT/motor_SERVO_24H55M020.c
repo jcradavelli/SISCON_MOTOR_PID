@@ -9,12 +9,12 @@
 
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL            LEDC_CHANNEL_0
-#define LEDC_DUTY_RES           LEDC_TIMER_8_BIT // Set duty resolution up to 13 bits
+#define LEDC_DUTY_RES           LEDC_TIMER_10_BIT // Set duty resolution up to 13 bits
 #define LEDC_DUTY               (1<<(LEDC_DUTY_RES-1)) // Set duty to 50%
 #define LEDC_FREQUENCY          (16000) // Frequency in Hertz. Set frequency at 4 kHz
 
-#define FREQ_MAX                (20000) // 20KHz
-#define FREQ_MIN                (200)   // 300Hz
+#define FREQ_MAX                (800) // 20KHz limite fisico
+#define FREQ_MIN                (50)   // 300Hz
 
 // #define speed_gpio          (2) // MCU OUTPUT speed singnal
 // #define enable_gpio         (23) // MCU OUTPUT

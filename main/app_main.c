@@ -99,7 +99,7 @@ void app_main(void)
         .encoder_config = {
             .gpio_encoder_a                     = GPIO_NUM_5,
             .gpio_encoder_b                     = GPIO_NUM_4,
-            .max_glitch_ns                      = 100,
+            .max_glitch_ns                      = 10,
             // .gear_ratio_numerator               = 49,
             // .gear_ration_denominator            = 20000,
             .pulses_per_revolution              = 100,
