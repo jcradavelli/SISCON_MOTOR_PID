@@ -9,12 +9,12 @@
 
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL            LEDC_CHANNEL_0
-#define LEDC_DUTY_RES           LEDC_TIMER_2_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY               (1) // Set duty to 50%. (2 ** 13) * 50% = 4096
+#define LEDC_DUTY_RES           LEDC_TIMER_8_BIT // Set duty resolution up to 13 bits
+#define LEDC_DUTY               (1<<(LEDC_DUTY_RES-1)) // Set duty to 50%
 #define LEDC_FREQUENCY          (16000) // Frequency in Hertz. Set frequency at 4 kHz
 
 #define FREQ_MAX                (20000) // 20KHz
-#define FREQ_MIN                (300)   // 300Hz
+#define FREQ_MIN                (200)   // 300Hz
 
 // #define speed_gpio          (2) // MCU OUTPUT speed singnal
 // #define enable_gpio         (23) // MCU OUTPUT
@@ -70,7 +70,7 @@ static motor_hand_t __motor_servo_24h55m020_attach (
         .duty_resolution  = LEDC_DUTY_RES,
         .timer_num        = timer_num,
         .freq_hz          = LEDC_FREQUENCY,
-        .clk_cfg          = LEDC_AUTO_CLK,
+        .clk_cfg          = LEDC_USE_RC_FAST_CLK,
     };
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
@@ -204,40 +204,44 @@ void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
 
     ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,1));
 
-    ESP_LOGI(TAG, "Set Speed: %0.2f %% | %lu Hz", speed, freq_hz);
+    ESP_LOGI(TAG, "Set Speed: %0.2f | %lu Hz", speed, freq_hz);
 
 
 
     if (freq_hz > FREQ_MAX)
     {
-        ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade maxima (%0.4f)", speed, object->speed_max);
+        ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade maxima (%0.4f)", speed, (double)FREQ_MAX);
         freq_hz = FREQ_MAX;
 
     }
     else if (freq_hz < FREQ_MIN)
     {
-        ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade minima (%0.4f)", speed, object->speed_min);
-
+        ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade minima (%0.4f)", speed, (double)FREQ_MIN);
+        freq_hz = FREQ_MIN;
         //TODO: Parar o motor!
-        //ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
-        //ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,0));
+        ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+        ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,0));
+
+
 
         return;
     }
-
-    freq_hz = 20000;
 
 
     if (speed < 0)
     {
         motor_servo_24h55m020_run_cw(handler);
         ESP_ERROR_CHECK(ledc_set_freq(LEDC_MODE, object->timer_num, freq_hz));
+        ledc_set_freq(LEDC_MODE, object->timer_num, freq_hz);
     }
     else
     {
         motor_servo_24h55m020_run_ccw(handler);
         ESP_ERROR_CHECK(ledc_set_freq(LEDC_MODE, object->timer_num, freq_hz));
     }
+
+    ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,1));
+
 }
 
 

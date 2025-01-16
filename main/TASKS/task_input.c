@@ -6,7 +6,7 @@
 
 void togle_setpoint (encmot_h encmot)
 {
-    float set;
+    double/*!!*/ set;
 
     static bool status = false;
 
@@ -30,19 +30,19 @@ void stop_mottor (encmot_h encmot)
 
 
 
-// static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-// static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
-//static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-static float kp=1.5, ki=0.0, kd = 0.0, setPoint = 0;
+// static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+// static double/*!!*/ kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
+//static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+static double/*!!*/ kp=1.0, ki=0.0, kd = 0.0, setPoint = 1;
 
-static float* selected = &kp;
-static float increment = 1;
+static double/*!!*/* selected = &kp;
+static double/*!!*/ increment = 1;
 
 static void tsk_input (void *args)
 {
     encmotDebugStream_t display;
     tskInput_args_t *this;
-    float counter = 0;
+    double/*!!*/ counter = 0;
     int counter_aux = 0;
     bool update = false;
 
@@ -185,7 +185,7 @@ static void tsk_input (void *args)
         }
         else if (gpio_get_level(BUTTON_1) && gpio_get_level(BUTTON_2) && gpio_get_level(BUTTON_3) && gpio_get_level(BUTTON_4))
         {
-            butonsClear = true;
+            //butonsClear = true;
             // encmot_tune_pid(this->encmot,kp,ki,kd); // TODO: Ajustar PID
             // ESP_LOGD(TAG,"GANHOS-------------------\n>kp:%e\n>ki:%e\n>kd:%e\n------------------",kp,ki,kd);
 

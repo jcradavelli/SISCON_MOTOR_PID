@@ -62,6 +62,12 @@ void motor_release (motor_h handler)
     object->drv->motor_release(object->handler);
 }
 
+/**
+ * @brief configura a velocidade do motor 
+ * 
+ * @param handler contexto do motor
+ * @param speed valor de velocidade normalizado entre -1 e 1
+ */
 void    motor_set_speed (motor_h handler, double speed)
 {
     motor_t *object = handler;

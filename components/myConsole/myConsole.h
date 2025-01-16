@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 #include "freertos/FreeRTOS.h"
+#include "esp_console.h"
 
 
 typedef struct tskConsole_args_

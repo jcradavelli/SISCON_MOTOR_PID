@@ -59,11 +59,11 @@ tskEncmot_args_t tskEncmotArgs;
 tskConsole_args_t tskConsoleArgs;
 
 #ifdef USE_SERVO_DC_GA25
-static float kp=5000.0, ki=15000.0, kd = 50.0;
+static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0;
 #endif
 
 #ifdef USE_SERVO_24H55M020
-static float kp=0.07, ki=0.01, kd = 0.0;
+static double/*!!*/ kp=0.07, ki=0.01, kd = 0.0;
 #endif
 
 void app_main(void)
@@ -130,16 +130,29 @@ void app_main(void)
 #endif
 
     const tskConsole_args_t console_config = {
-        .gretings = "\n\n\n\n\n\n\n\n"
-                    "==============================================================================\n\n\n"
-                    "        ## ##     ## ##       ####  #######     ########  ######   ######     \n"
-                    "        ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
-                    "        ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-                    "        ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-                    "  ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
-                    "  ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
-                    "   ######   #######  ######## ####  #######        ##     ######   ######     \n\n\n"
-                    "==============================================================================\n",
+
+
+                              
+        .gretings = 
+            "\n\n\n\n\n\n\n\n"
+            "===============================================================================================================\n\n\n"                                      
+            "  @@@@@@@@@@@@@ \n"
+            " @@@          @@ \n"
+            " @@     @@@    @@ \n"
+            " @     @@@@@@@  @@@@@@@@@@ \n"
+            " @     @@   @@@@  @@@@@@@@@             ## ##     ## ##       ####  #######     ########  ######   ######     \n"
+            " @@@   @@      @@@@@      @@            ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
+            "  @@@  @@         @@@@@    @@           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+            "   @@  @@                   @           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
+            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
+            " @     @@    @@@@  @@@@@@@@        ######   #######  ######## ####  #######        ##     ######   ######     \n"
+            " @     @@ @@@@@ @@@@@@@@@@ \n"
+            " @@    @@@@@   @@              Controlador de Manipulador Esferico Paralelo   \n"
+            "  @@          @@               2025/1                                         \n"
+            "   @@@@@@@@@@@@ \n"
+            "    @@@@@@@@@ \n\n\n"
+            "===============================================================================================================\n",
         .version = version,
     };
 
@@ -188,6 +201,17 @@ void app_main(void)
     create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
-    //esp_log_level_set("encoder", ESP_LOG_ALL);
+    /*
+        ESP_LOG_INFO
+        ESP_LOG_ERROR
+        ESP_LOG_NONE
+    */
+
+    esp_log_level_set("*",                  ESP_LOG_INFO);
+    esp_log_level_set("EncMot",             ESP_LOG_INFO);
+    esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
+    esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);
+    esp_log_level_set("motor",              ESP_LOG_ERROR);
+    esp_log_level_set("encoder",            ESP_LOG_NONE);
 
 }

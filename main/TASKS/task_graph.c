@@ -262,7 +262,7 @@ void tsk_graph (void *args)
                     "\n---------- PID controller job ----------------\n"
                     ">measurement:\t\t%e\n"
                     ">setpoint:\t%e\n"
-                    // ">error:\t\t%e\n"
+                    ">error:\t\t%e\n"
                     ">kp: %e\n"
                     ">ki: %e\n"
                     ">kd: %e\n"
@@ -273,7 +273,7 @@ void tsk_graph (void *args)
                     "\n----------------------------------------------\n",
                     received.PID.measurement,
                     received.PID.setpoint,
-                    // received.PID.error,
+                    received.PID.error,
                     received.PID.Kp,
                     received.PID.Ki,
                     received.PID.Kd,
@@ -364,7 +364,7 @@ void __update_inqueue (QueueHandle_t queue, encmotDebugStream_t *display)
     }
 }
 
-void update_newValue (QueueHandle_t queue, float value)
+void update_newValue (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_VAL;
@@ -373,7 +373,7 @@ void update_newValue (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_increment (QueueHandle_t queue, float value)
+void update_increment (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_INC;
@@ -391,7 +391,7 @@ void update_pidDebugStream (QueueHandle_t queue, PIDControllerDebugStream_t valu
     __update_inqueue(queue, &display);
 }
 
-void update_KP (QueueHandle_t queue, float value)
+void update_KP (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_KP;
@@ -400,7 +400,7 @@ void update_KP (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_KI (QueueHandle_t queue, float value)
+void update_KI (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_KI;
@@ -409,7 +409,7 @@ void update_KI (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_KD (QueueHandle_t queue, float value)
+void update_KD (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_KD;
@@ -418,7 +418,7 @@ void update_KD (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_SP (QueueHandle_t queue, float value)
+void update_SP (QueueHandle_t queue, double/*!!*/ value)
 {
     encmotDebugStream_t display;
     display.type = USR_SP;

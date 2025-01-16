@@ -43,13 +43,13 @@ typedef struct encmotDebugStream_t
     union 
     {
         PIDControllerDebugStream_t PID;
-        float kp;
-        float ki;
-        float kd;
-        float sp;
+        double/*!!*/ kp;
+        double/*!!*/ ki;
+        double/*!!*/ kd;
+        double/*!!*/ sp;
         char sel[10];
-        float inc;
-        float usrVal;
+        double/*!!*/ inc;
+        double/*!!*/ usrVal;
     };
     
 }encmotDebugStream_t;
@@ -97,9 +97,9 @@ typedef struct encmot_config_{
      * 
      */
     struct{
-        float kp;
-        float ki;
-        float kd;
+        double/*!!*/ kp;
+        double/*!!*/ ki;
+        double/*!!*/ kd;
         int samplerate_ms;
         bool* isSatured;
     }pid_config;
@@ -156,6 +156,14 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out);
 void encmot_set_speed (encmot_h handler, double setpoint);
 
 /**
+ * @brief configura o setpoint a ser atingido
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param setpoint valor de posição a ser perseguida pelo motor
+ */
+void encmot_set_position (encmot_h handler, double setpoint);
+
+/**
  * @brief ajusta os parâmetros de PID do controlador do motor
  * 
  * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
@@ -163,12 +171,12 @@ void encmot_set_speed (encmot_h handler, double setpoint);
  * @param ki ganho itegrativo
  * @param kd ganho derivativo
  */
-void encmot_tune_pid (encmot_h handler, float kp, float ki, float kd);
+void encmot_tune_pid (encmot_h handler, double/*!!*/ kp, double/*!!*/ ki, double/*!!*/ kd);
 
 
 // TODO: Funções para expandir a biblioteca
-// float encmot_get_encoderPosition_grad(encmot_h handler);
-// float encmot_get_encoderPosition_rad(encmot_h handler);
+// double/*!!*/ encmot_get_encoderPosition_grad(encmot_h handler);
+// double/*!!*/ encmot_get_encoderPosition_rad(encmot_h handler);
 // void encmot_stop (encmot_h handler);
 // void encmot_continue (encmot_h handler);
 

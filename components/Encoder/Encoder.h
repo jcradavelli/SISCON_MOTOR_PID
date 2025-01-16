@@ -68,9 +68,9 @@ typedef struct encoder_config_{
  */
 typedef struct encoder_sample_{
     int64_t time;
-    double     count;
-    float   speed;
-    float   acele;
+    double  count;
+    double  speed;
+    double  acele;
 }encoder_sample_t;
 
 /**

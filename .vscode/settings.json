@@ -48,7 +48,9 @@
     "esp_console.h": "c",
     "string.h": "c",
     "esp_flash.h": "c",
-    "fcntl.h": "c"
+    "fcntl.h": "c",
+    "myconsole.h": "c",
+    "console_encmot.h": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {

@@ -184,10 +184,10 @@ void encoder_clear_encoderCount (encoder_h handler)
     ESP_ERROR_CHECK(pcnt_unit_clear_count(object->pcnt_unit));
 }
 
-// static float __encoder_get_turns (encoder_h handler)
+// static double/*!!*/ __encoder_get_turns (encoder_h handler)
 // {
 //     encoder_t *object = handler;
-//     float value;
+//     double/*!!*/ value;
 
 //     assert(handler!=NULL);
 //     value = encoder_get_enconderCount_raw(handler);
@@ -198,9 +198,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// float encoder_get_encoderPosition_grad(encoder_h handler)
+// double/*!!*/ encoder_get_encoderPosition_grad(encoder_h handler)
 // {
-//     float value;
+//     double/*!!*/ value;
 
 //     assert(handler!=NULL);
 //     value = __encoder_get_turns(handler) * 360;
@@ -208,9 +208,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// float encoder_get_encoderPosition_rad(encoder_h handler)
+// double/*!!*/ encoder_get_encoderPosition_rad(encoder_h handler)
 // {
-//     float value;
+//     double/*!!*/ value;
 
 //     assert(handler!=NULL);
 //     value = (__encoder_get_turns(handler) * 2 )/ M_PI;
@@ -223,9 +223,9 @@ void encoder_job (encoder_h handler)
     encoder_t *object = handler;
     static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;
     double count;
-    float speed=0;
-    float acele;
-    float jerk;
+    double speed=0;
+    double acele;
+    double jerk;
     int64_t time;
     int dtime;
 
@@ -253,29 +253,29 @@ void encoder_job (encoder_h handler)
         if (count > object->last_sample.count) // overflow?
         {
             object->last_sample.count += SHRT_MAX* 15707.96327;
-            speed = (float)(count - object->last_sample.count)/(dtime);
+            speed = (double)(count - object->last_sample.count)/(dtime);
         }
         else //underflow!
         {
             object->last_sample.count += SHRT_MIN* 15707.96327; //ok
-            speed = (float)(count - object->last_sample.count)/(dtime);
+            speed = (double)(count - object->last_sample.count)/(dtime);
         }
         ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
     }
     else
     {
         ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
-        speed = (float)(count - object->last_sample.count)/(dtime);
+        speed = (double)(count - object->last_sample.count)/(dtime);
     }
     acele = (speed - object->last_sample.speed)/(dtime);
     jerk  = (acele - object->last_sample.acele)/(dtime);
 
     // Debug dos dados de encoder
     ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
-    ESP_LOGI(TAG,"\n>count:%f °\r\n",count);
-    ESP_LOGI(TAG,"\n>Speed:%0.20e °/s\r\n",speed);
-    ESP_LOGI(TAG,"\n>acele:%0.20e °/s²\r\n",acele);
-    ESP_LOGI(TAG,"\n>jerk:%0.20e °/s³\r\n",jerk);
+    ESP_LOGI(TAG,"\n>count:%f \r\n",count);
+    ESP_LOGI(TAG,"\n>Encoder Speed (rad/s):%0.20f\r\n",speed);
+    ESP_LOGI(TAG,"\n>acele (rad/s²):%0.20f \r\n",acele);
+    ESP_LOGI(TAG,"\n>jerk (rad/s³):%0.20f \r\n",jerk);
 
     // Atualiza os valores
     object->last_sample.time    = time;
