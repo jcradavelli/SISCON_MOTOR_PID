@@ -24,6 +24,9 @@
 #include "task_graph.h"
 #include "myConsole.h"
 #include "Version_tools.h"
+
+#include "esp_rom_sys.h"
+#include "soc/reset_reasons.h"
   
 
 
@@ -52,8 +55,111 @@ static double kp=5000.0, ki=15000.0, kd = 50.0;
 static double kp=0.07, ki=0.01, kd = 0.0;
 #endif
 
+
+
+
+
 void app_main(void)
 {
+    const tskConsole_args_t console_config = {    
+        .gretings = 
+            "\n\n\n\n\n\n\n\n"
+            "\033[0;36m" // Cor ciano
+            "===============================================================================================================\n\n\n"                                      
+            "  @@@@@@@@@@@@@ \n"
+            " @@@          @@ \n"
+            " @@     @@@    @@ \n"
+            " @     @@@@@@@  @@@@@@@@@@ \n"
+            " @     @@   @@@@  @@@@@@@@@             ## ##     ## ##       ####  #######     ########  ######   ######     \n"
+            " @@@   @@      @@@@@      @@            ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
+            "  @@@  @@         @@@@@    @@           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+            "   @@  @@                   @           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
+            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
+            " @     @@    @@@@  @@@@@@@@        ######   #######  ######## ####  #######        ##     ######   ######     \n"
+            " @     @@ @@@@@ @@@@@@@@@@ \n"
+            " @@    @@@@@   @@              Controlador de Manipulador Esferico Paralelo   \n"
+            "  @@          @@               2025/1                                         \n"
+            "   @@@@@@@@@@@@ \n"
+            "    @@@@@@@@@ \n\n\n"
+            "===============================================================================================================\n"
+            LOG_RESET_COLOR
+            ,
+        .version = version,
+    };
+
+
+    switch (esp_reset_reason())
+    {
+        case ESP_RST_UNKNOWN    : //!< Reset reason can not be determined
+            ESP_LOGI("RESET_CAUSE", "Reset reason can not be determined");
+            break;
+        case ESP_RST_POWERON    : //!< Reset due to power-on event
+            ESP_LOGI("RESET_CAUSE", "Reset due to power-on event");
+            break;
+        case ESP_RST_EXT        : //!< Reset by external pin (not applicable for ESP32)
+            ESP_LOGI("RESET_CAUSE", "Reset by external pin (not applicable for ESP32)");
+            break;
+        case ESP_RST_SW         : //!< Software reset via esp_restart
+            ESP_LOGI("RESET_CAUSE", "Software reset via esp_restart");
+            break;
+        case ESP_RST_PANIC      : //!< Software reset due to exception/panic
+            ESP_LOGI("RESET_CAUSE", "Software reset due to exception/panic");
+            break;
+        case ESP_RST_INT_WDT    : //!< Reset (software or hardware) due to interrupt watchdog
+            ESP_LOGI("RESET_CAUSE", "Reset (software or hardware) due to interrupt watchdog");
+            break;
+        case ESP_RST_TASK_WDT   : //!< Reset due to task watchdog
+            ESP_LOGI("RESET_CAUSE", "Reset due to task watchdog");
+            break;
+        case ESP_RST_WDT        : //!< Reset due to other watchdogs
+            ESP_LOGI("RESET_CAUSE", "Reset due to other watchdogs");
+            break;
+        case ESP_RST_DEEPSLEEP  : //!< Reset after exiting deep sleep mode
+            ESP_LOGI("RESET_CAUSE", "Reset after exiting deep sleep mode");
+            break;
+        case ESP_RST_BROWNOUT   : //!< Brownout reset (software or hardware)
+            ESP_LOGI("RESET_CAUSE", "Brownout reset (software or hardware)");
+            break;
+        case ESP_RST_SDIO       : //!< Reset over SDIO
+            ESP_LOGI("RESET_CAUSE", "Reset over SDIO");
+            break;
+        case ESP_RST_USB        : //!< Reset by USB peripheral
+            ESP_LOGI("RESET_CAUSE", "Reset by USB peripheral");
+            break;
+        case ESP_RST_JTAG       : //!< Reset by JTAG
+            ESP_LOGI("RESET_CAUSE", "Reset by JTAG");
+            break;
+        case ESP_RST_EFUSE      : //!< Reset due to efuse error
+            ESP_LOGI("RESET_CAUSE", "Reset due to efuse error");
+            break;
+        case ESP_RST_PWR_GLITCH : //!< Reset due to power glitch detected
+            ESP_LOGI("RESET_CAUSE", "Reset due to power glitch detected");
+            break;
+        case ESP_RST_CPU_LOCKUP : //!< Reset due to CPU lock up
+            ESP_LOGI("RESET_CAUSE", "Reset due to CPU lock up");
+            break;
+        default:
+            ESP_LOGI("RESET_CAUSE", "Reset reason code %d can not be determined", esp_reset_reason());
+
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+        /*
+    ESP_LOG_INFO
+    ESP_LOG_ERROR
+    ESP_LOG_NONE
+    */
+    esp_log_level_set("*",                  ESP_LOG_NONE);
+    // esp_log_level_set("EncMot",             ESP_LOG_INFO);
+    // esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
+    // esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);
+    // esp_log_level_set("motor",              ESP_LOG_ERROR);
+    // esp_log_level_set("encoder",            ESP_LOG_NONE);
+
 
     bool satured = false;
 
@@ -115,32 +221,6 @@ void app_main(void)
     };
 #endif
 
-    const tskConsole_args_t console_config = {
-
-
-                              
-        .gretings = 
-            "\n\n\n\n\n\n\n\n"
-            "===============================================================================================================\n\n\n"                                      
-            "  @@@@@@@@@@@@@ \n"
-            " @@@          @@ \n"
-            " @@     @@@    @@ \n"
-            " @     @@@@@@@  @@@@@@@@@@ \n"
-            " @     @@   @@@@  @@@@@@@@@             ## ##     ## ##       ####  #######     ########  ######   ######     \n"
-            " @@@   @@      @@@@@      @@            ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
-            "  @@@  @@         @@@@@    @@           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            "   @@  @@                   @           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
-            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
-            " @     @@    @@@@  @@@@@@@@        ######   #######  ######## ####  #######        ##     ######   ######     \n"
-            " @     @@ @@@@@ @@@@@@@@@@ \n"
-            " @@    @@@@@   @@              Controlador de Manipulador Esferico Paralelo   \n"
-            "  @@          @@               2025/1                                         \n"
-            "   @@@@@@@@@@@@ \n"
-            "    @@@@@@@@@ \n\n\n"
-            "===============================================================================================================\n",
-        .version = version,
-    };
 
 
     encmot_h encmot = NULL;
@@ -184,20 +264,10 @@ void app_main(void)
     tskEncmotArgs.logQueue = LogQueue;
     create_tsk_encmot (&tskEncmotArgs, configMAX_PRIORITIES/2+1 ,1);
 
-    create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
-    /*
-        ESP_LOG_INFO
-        ESP_LOG_ERROR
-        ESP_LOG_NONE
-    */
 
-    esp_log_level_set("*",                  ESP_LOG_INFO);
-    esp_log_level_set("EncMot",             ESP_LOG_INFO);
-    esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
-    esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);
-    esp_log_level_set("motor",              ESP_LOG_ERROR);
-    esp_log_level_set("encoder",            ESP_LOG_NONE);
+
+
 
 }

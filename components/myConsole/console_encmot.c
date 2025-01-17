@@ -53,9 +53,9 @@ static int console_encmot_tune_pid (int argc, char **argv)
 void registered_encmot_tunePID () 
 {
     tunePID.instance = arg_int1(NULL, NULL, "<n>", "Numero da instancia do objeto.");
-    tunePID.kp = arg_dbl1(NULL, NULL, "<dval>", "Valor do ganho proporcional (double).");
-    tunePID.ki = arg_dbl1(NULL, NULL, "<dval>", "Valor do ganho integrativo (double).");
-    tunePID.kd = arg_dbl1(NULL, NULL, "<dval>", "Valor do ganho derivativo (double).");
+    tunePID.kp = arg_dbl1("p", "kp", "<dval>", "Valor do ganho proporcional (double).");
+    tunePID.ki = arg_dbl1("i", "ki", "<dval>", "Valor do ganho integrativo (double).");
+    tunePID.kd = arg_dbl1("d", "kd", "<dval>", "Valor do ganho derivativo (double).");
     tunePID.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -100,7 +100,7 @@ static int console_encmot_set_speed(int argc, char **argv)
 void registered_encmot_setSpeed () 
 {
     setSpeed.instance = arg_int1(NULL, NULL, "<n>", "Numero da instancia do objeto.");
-    setSpeed.speed = arg_dbl1(NULL, NULL, "<dval>", "Valor da velocidade em radianos por segundo (double).");
+    setSpeed.speed = arg_dbl1("v", "speed", "<dval>", "Valor da velocidade em radianos por segundo (double).");
     setSpeed.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
@@ -144,7 +144,7 @@ static int console_encmot_set_position(int argc, char **argv)
 void registered_encmot_setposition () 
 {
     setPosition.instance = arg_int1(NULL, NULL, "<n>", "Numero da instancia do objeto.");
-    setPosition.position = arg_dbl1(NULL, NULL, "<dval>", "Valor da velocidade em radianos por segundo (double).");
+    setPosition.position = arg_dbl1("v", "position", "<dval>", "Valor da velocidade em radianos por segundo (double).");
     setPosition.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {

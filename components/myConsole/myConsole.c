@@ -20,7 +20,12 @@
 
 
 
-
+/*
+ * Documentação de como usar agrtables na documentação oficial
+ *  https://linux.die.net/man/3/argtable
+ * 
+ */
+ 
 
 
 /*
@@ -34,7 +39,9 @@
 #endif
 #endif
 
-
+/* Prompt to be printed before each line.
+* This can be customized, made dynamic, etc.
+*/
 const char* prompt = LOG_COLOR_I CONFIG_IDF_TARGET "> " LOG_RESET_COLOR;
 
 
@@ -154,7 +161,6 @@ void create_tsk_console (const tskConsole_args_t* tskConsolArgs, UBaseType_t pri
     vprintf_into_uart0_init();
     esp_log_set_vprintf(vprintf_into_uart0);
 
-
     initialize_console();
 
     /* Register commands */
@@ -164,12 +170,10 @@ void create_tsk_console (const tskConsole_args_t* tskConsolArgs, UBaseType_t pri
     // register_nvs();
     // register_wifi();
 
-    /* Prompt to be printed before each line.
-     * This can be customized, made dynamic, etc.
-     */
-    
 
-    printf("\n"
+
+    printf(
+            "\n"
            "%s"
            "Version: %s\n"
            "Type 'help' to get the list of commands.\n", tskConsolArgs->gretings, tskConsolArgs->version);

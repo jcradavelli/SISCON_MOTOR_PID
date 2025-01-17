@@ -117,10 +117,6 @@ encmot_h encmot_attach (encmot_config_t config)
 
     memcpy(object, &aux, sizeof(aux));
 
-    /* Configura o nivel de LOG da biblioteca encoder */
-    esp_log_level_set("encoder", ESP_LOG_INFO);
-
-
     /* Adiciona os comandos de terminal */
     register_encmot_newInstance(object);
 
