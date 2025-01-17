@@ -76,8 +76,6 @@ void PIDController_Init (PIDController_h pid, double Kp, double Ki, double Kd, d
  */
 double PIDController_Update(PIDController_h pid, double setpoint, double measurement, PIDControllerDebugStream_t *debugOut);
 
-
-
 /**
  * @brief Ajusta os ganhos de PID
  * 
@@ -87,6 +85,16 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
  * @param Kd 	ganho derivativo
  */
 void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double kd);
+
+/**
+ * @brief le os ganhos de PID
+ * 
+ * @param pid handler do objeto pid
+ * @param kp ganho proporcional [out]
+ * @param ki ganho integrativo [out]
+ * @param kd ganho derivativo [out]
+ */
+void PIDController_get_pid (PIDController_h pid, double *kp, double *ki, double *kd);
 
 /**
  * @brief reseta as variáveis do controlador

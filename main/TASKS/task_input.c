@@ -6,7 +6,7 @@
 
 void togle_setpoint (encmot_h encmot)
 {
-    double/*!!*/ set;
+    double set;
 
     static bool status = false;
 
@@ -30,19 +30,18 @@ void stop_mottor (encmot_h encmot)
 
 
 
-// static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-// static double/*!!*/ kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
-//static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-static double/*!!*/ kp=1.0, ki=0.0, kd = 0.0, setPoint = 1;
+// static double kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+// static double kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
+//static double kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
+static double kp=1.0, ki=0.0, kd = 0.0, setPoint = 1;
 
-static double/*!!*/* selected = &kp;
-static double/*!!*/ increment = 1;
+static double* selected = &kp;
+static double increment = 1;
 
 static void tsk_input (void *args)
 {
-    encmotDebugStream_t display;
     tskInput_args_t *this;
-    double/*!!*/ counter = 0;
+    double counter = 0;
     int counter_aux = 0;
     bool update = false;
 
@@ -59,6 +58,10 @@ static void tsk_input (void *args)
     ESP_LOGI(TAG,">Selected: kp|t\r\n");
     ESP_LOGI(TAG,">UsrEncoder: %4.4f\r\n", counter);
     ESP_LOGI(TAG,">Increment: %4.4f|t\r\n", increment);
+
+    // encmot_get_pid(this->encmot, &kp, &ki, &kd);
+    // encmot_get_setpoint(this->encmot, &setPoint, NULL);
+    
 
     update_KP(this->logQueue, kp);  
     update_KI(this->logQueue, ki);  

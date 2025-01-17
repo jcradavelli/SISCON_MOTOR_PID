@@ -13,9 +13,6 @@
 #include "esp_vfs_cdcacm.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-// #include "cmd_nvs.h"
-// #include "cmd_system.h"
-// #include "cmd_wifi.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "system_comands.h"
@@ -23,11 +20,6 @@
 
 
 
-
-
-
-
-static const char *TAG = "myConsole";
 
 
 
@@ -41,6 +33,9 @@ static const char *TAG = "myConsole";
 #warning "A secondary serial console is not useful when using the console component. Please disable it in menuconfig."
 #endif
 #endif
+
+
+const char* prompt = LOG_COLOR_I CONFIG_IDF_TARGET "> " LOG_RESET_COLOR;
 
 
 static void initialize_nvs(void)
@@ -93,9 +88,6 @@ static void initialize_console(void)
 
 void console_task(void* args)
 {
-    assert(args != NULL);
-    const char* prompt = args;
-
     /* Main loop */
     while(true) {
         /* Get a line using linenoise.
@@ -154,7 +146,7 @@ int vprintf_into_uart0(const char * str, va_list argList)
 
 
 
-void create_tsk_console (tskConsole_args_t* tskConsolArgs, UBaseType_t prioridade ,const BaseType_t xCoreID)
+void create_tsk_console (const tskConsole_args_t* tskConsolArgs, UBaseType_t prioridade ,const BaseType_t xCoreID)
 {
 
     initialize_nvs();
@@ -175,7 +167,7 @@ void create_tsk_console (tskConsole_args_t* tskConsolArgs, UBaseType_t prioridad
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
      */
-    const char* prompt = LOG_COLOR_I CONFIG_IDF_TARGET "> " LOG_RESET_COLOR;
+    
 
     printf("\n"
            "%s"
@@ -200,5 +192,5 @@ void create_tsk_console (tskConsole_args_t* tskConsolArgs, UBaseType_t prioridad
     }
 
 
-    xTaskCreatePinnedToCore(console_task, "console", /* Stack Size = */ 4*2048 , prompt, prioridade, NULL, xCoreID);
+    xTaskCreatePinnedToCore(console_task, "console", /* Stack Size = */ 4*2048 , NULL, prioridade, NULL, xCoreID);
 }

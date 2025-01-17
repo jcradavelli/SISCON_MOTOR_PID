@@ -213,14 +213,12 @@ void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double k
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	// TODO: Check if PID is running
 	this->Kp = kp;
 	this->Ki = ki;
 	this->Kd = kd;
-
 }
 
-void PIDController_tune_pid_byTime (PIDController_h pid, double bp, double ti, double td)
+void PIDController_get_pid (PIDController_h pid, double *kp, double *ki, double *kd)
 {
 	// asserts
 	assert(pid != 0); // PID deve ser um endereço válido
@@ -228,13 +226,10 @@ void PIDController_tune_pid_byTime (PIDController_h pid, double bp, double ti, d
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	// TODO: Check if PID is running
-	this->Kp = 100/bp;
-	this->Ki = this->Kp/ti;
-	this->Kd = this->Kp/td;
-
+	*kp = this->Kp;
+	*ki = this->Ki;
+	*kd = this->Kd;
 }
-
 
 void PIDController_reset (PIDController_h pid)
 {

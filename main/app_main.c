@@ -24,21 +24,7 @@
 #include "task_graph.h"
 #include "myConsole.h"
 #include "Version_tools.h"
-
-static const char *TAG = "example";
-
-
-
-
-
-
-         
-
-
-
-
-
-
+  
 
 
 
@@ -59,11 +45,11 @@ tskEncmot_args_t tskEncmotArgs;
 tskConsole_args_t tskConsoleArgs;
 
 #ifdef USE_SERVO_DC_GA25
-static double/*!!*/ kp=5000.0, ki=15000.0, kd = 50.0;
+static double kp=5000.0, ki=15000.0, kd = 50.0;
 #endif
 
 #ifdef USE_SERVO_24H55M020
-static double/*!!*/ kp=0.07, ki=0.01, kd = 0.0;
+static double kp=0.07, ki=0.01, kd = 0.0;
 #endif
 
 void app_main(void)

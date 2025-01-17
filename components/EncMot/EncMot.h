@@ -25,6 +25,17 @@ extern "C" {
 
 #include "motor.h"
 
+/**
+ * @brief Define o tipo de controle do motor
+ * 
+ */
+typedef enum controlerMode_
+{
+    CONTMODE_OPEN_LOOP,         //<! Controle em malha aberta
+    CONTMODE_PID_SPEED,         //<! Controle de velocidade em malha fechada tipo PID
+    CONTMODE_PID_POSITION,      //<! Controle de posição em malha fechada tipo PID
+}controlerMode_t;
+
 
 typedef enum info_type_
 {
@@ -37,19 +48,20 @@ typedef enum info_type_
     USR_INC,
     USR_VAL,
 }info_type_t;
+
 typedef struct encmotDebugStream_t
 {
     info_type_t type;
     union 
     {
         PIDControllerDebugStream_t PID;
-        double/*!!*/ kp;
-        double/*!!*/ ki;
-        double/*!!*/ kd;
-        double/*!!*/ sp;
+        double kp;
+        double ki;
+        double kd;
+        double sp;
         char sel[10];
-        double/*!!*/ inc;
-        double/*!!*/ usrVal;
+        double inc;
+        double usrVal;
     };
     
 }encmotDebugStream_t;
@@ -97,9 +109,9 @@ typedef struct encmot_config_{
      * 
      */
     struct{
-        double/*!!*/ kp;
-        double/*!!*/ ki;
-        double/*!!*/ kd;
+        double kp;
+        double ki;
+        double kd;
         int samplerate_ms;
         bool* isSatured;
     }pid_config;
@@ -147,6 +159,16 @@ int encmot_get_enconderCount_raw(encmot_h handler);
 void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out);
 
 /**
+ * @brief obtem o setpoint do motor
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param setpoint valor a ser perseguido
+ * @param contmode modo de controle
+ */
+void encmot_get_setpoint (encmot_h handler, double *setpoint, controlerMode_t *contmode);
+
+
+/**
  * @brief configura o setpoint a ser atingido
  * TODO: Criar uma função específica para cada tipo de controle a ser utilizado
  * 
@@ -154,6 +176,15 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out);
  * @param setpoint valor a ser perseguido pelo motor
  */
 void encmot_set_speed (encmot_h handler, double setpoint);
+
+/**
+ * @brief obtém a velocidade de rotação do eixo do motor
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param speed velocidade lida em radianos por segundo
+ */
+void encmot_read_speed (encmot_h handler, double *speed);
+
 
 /**
  * @brief configura o setpoint a ser atingido
@@ -164,6 +195,14 @@ void encmot_set_speed (encmot_h handler, double setpoint);
 void encmot_set_position (encmot_h handler, double setpoint);
 
 /**
+ * @brief obtem a posição do eixo do motor
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param position posição do eixo em radianos
+ */
+void encmot_read_position (encmot_h handler, double *position);
+
+/**
  * @brief ajusta os parâmetros de PID do controlador do motor
  * 
  * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
@@ -171,14 +210,18 @@ void encmot_set_position (encmot_h handler, double setpoint);
  * @param ki ganho itegrativo
  * @param kd ganho derivativo
  */
-void encmot_tune_pid (encmot_h handler, double/*!!*/ kp, double/*!!*/ ki, double/*!!*/ kd);
+void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd);
 
+/**
+ * @brief obtem os parâmetros de PID do controlador do motor
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ * @param kp ganho proporcional [out]
+ * @param ki ganho itegrativo [out]
+ * @param kd ganho derivativo [out]
+ */
+void encmot_get_pid (encmot_h handler, double *kp, double *ki, double *kd);
 
-// TODO: Funções para expandir a biblioteca
-// double/*!!*/ encmot_get_encoderPosition_grad(encmot_h handler);
-// double/*!!*/ encmot_get_encoderPosition_rad(encmot_h handler);
-// void encmot_stop (encmot_h handler);
-// void encmot_continue (encmot_h handler);
 
 #ifdef __cplusplus
 }

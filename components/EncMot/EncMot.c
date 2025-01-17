@@ -41,12 +41,7 @@ static const char *TAG_ACTION_SET_POSITION = "Seting_Position";
 #define PID_LIM_MAX_INT         0.7f    // Valor máximo no termo integral do PID
 
 
-typedef enum controlerMode_
-{
-    CONTMODE_OPEN_LOOP,
-    CONTMODE_PID_SPEED,
-    CONTMODE_PID_POSITION,
-}controlerMode_t;
+
 
 typedef struct encmot_{
     /* Sub Objetos */
@@ -132,50 +127,6 @@ encmot_h encmot_attach (encmot_config_t config)
     return(object);
 }
 
-//Wrapper function
-inline int encmot_get_enconderCount_raw(encmot_h handler)
-{
-    encmot_t *object = handler;
-    return (encoder_get_enconderCount_raw(object->encoder));
-}
-
-//Wrapper function
-// inline double/*!!*/ encmot_get_encoderPosition_grad(encmot_h handler)
-// {
-//     encmot_t *object = handler;
-    // return(encoder_get_encoderPosition_grad(object->encoder));
-// }
-
-//Wrapper function
-// inline double/*!!*/ encmot_get_encoderPosition_rad(encmot_h handler)
-// {
-//     encmot_t *object = handler;
-//     return(encoder_get_encoderPosition_rad(object->encoder));
-// }
-
-
-// void encmot_stop (encmot_h handler)
-// {
-//     assert(handler!=NULL);
-//     encmot_t *object = handler;
-
-//     // Coloca o PID em modo manual
-//     //TODO: disable PID
-
-//     // Colocar a velocidade do motor em 0
-//     motor_set_speed(object->motor, 0);
-
-// }
-
-// void encmot_continue (encmot_h handler)
-// {
-//     assert(handler!=NULL);
-//     encmot_t *object = handler;
-
-//     // TODO: Enable PID
-// }
-
-
 static double __contmode_openloop (encmot_h handler)
 {
     encmot_t *object = handler;
@@ -254,8 +205,18 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
             break;
     }
 
-    /*stream controll data */
-    // TODO: implementar fila e estrimar os dados de controle
+}
+
+void encmot_get_setpoint (encmot_h handler, double *setpoint, controlerMode_t *contmode)
+{
+    encmot_t *object = handler;
+    assert(handler!=NULL);   
+
+    if (setpoint != NULL)
+        *setpoint = object->setpoint;
+
+    if (contmode != NULL)
+        *contmode = object->contmode;
 }
 
 /**
@@ -285,6 +246,14 @@ void encmot_set_speed (encmot_h handler, double setpoint)
     ESP_LOGI(ACTION,"Done!");
 }
 
+void encmot_read_speed (encmot_h handler, double *speed)
+{
+    encmot_t *object = handler;
+    assert(handler!=NULL);
+    *speed = encoder_get_lastSample(object->encoder).speed / 314.15;
+}
+
+
 
 void encmot_set_position (encmot_h handler, double setpoint)
 {
@@ -307,7 +276,14 @@ void encmot_set_position (encmot_h handler, double setpoint)
     ESP_LOGI(ACTION,"Done!");
 }
 
-void encmot_tune_pid (encmot_h handler, double/*!!*/ kp, double/*!!*/ ki, double/*!!*/ kd)
+void encmot_read_position (encmot_h handler, double *position)
+{
+    encmot_t *object = handler;
+    assert(handler!=NULL);
+    *position = encoder_get_lastSample(object->encoder).count;
+}
+
+void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
@@ -316,6 +292,15 @@ void encmot_tune_pid (encmot_h handler, double/*!!*/ kp, double/*!!*/ ki, double
     
     PIDController_tune_pid(object->PIDcontroller, kp, ki, kd);
 }
+
+
+void encmot_get_pid (encmot_h handler, double *kp, double *ki, double *kd)
+{
+    encmot_t *object = handler;
+    assert(handler!=NULL);
+
+    PIDController_get_pid(object->PIDcontroller, kp, ki, kd);
+}   
 
 
 

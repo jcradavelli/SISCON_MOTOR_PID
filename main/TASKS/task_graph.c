@@ -150,9 +150,8 @@ void init_screens(lv_disp_t *disp)
 void init_display ()
 {
     ESP_LOGI(TAG, "Initialize I2C bus");
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // i2c_master_bus_handle_t i2c_bus = NULL;
-    esp_lcd_i2c_bus_handle_t i2c_bus = NULL;
+
+    esp_lcd_i2c_bus_handle_t i2c_bus = {};
     i2c_config_t bus_config = {
         .mode               = I2C_MODE_MASTER,
         .sda_io_num         = EXAMPLE_PIN_NUM_SDA,          // select SDA GPIO specific to your project
@@ -164,7 +163,6 @@ void init_display ()
     };
     i2c_param_config(I2C_BUS_PORT, &bus_config);
     i2c_driver_install(I2C_BUS_PORT, I2C_MODE_MASTER, 0, 0, 0);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "Install panel IO");
     esp_lcd_panel_io_handle_t io_handle = NULL;
@@ -364,7 +362,7 @@ void __update_inqueue (QueueHandle_t queue, encmotDebugStream_t *display)
     }
 }
 
-void update_newValue (QueueHandle_t queue, double/*!!*/ value)
+void update_newValue (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_VAL;
@@ -373,7 +371,7 @@ void update_newValue (QueueHandle_t queue, double/*!!*/ value)
     __update_inqueue(queue, &display);
 }
 
-void update_increment (QueueHandle_t queue, double/*!!*/ value)
+void update_increment (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_INC;
@@ -391,7 +389,7 @@ void update_pidDebugStream (QueueHandle_t queue, PIDControllerDebugStream_t valu
     __update_inqueue(queue, &display);
 }
 
-void update_KP (QueueHandle_t queue, double/*!!*/ value)
+void update_KP (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KP;
@@ -400,7 +398,7 @@ void update_KP (QueueHandle_t queue, double/*!!*/ value)
     __update_inqueue(queue, &display);
 }
 
-void update_KI (QueueHandle_t queue, double/*!!*/ value)
+void update_KI (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KI;
@@ -409,7 +407,7 @@ void update_KI (QueueHandle_t queue, double/*!!*/ value)
     __update_inqueue(queue, &display);
 }
 
-void update_KD (QueueHandle_t queue, double/*!!*/ value)
+void update_KD (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KD;
@@ -418,7 +416,7 @@ void update_KD (QueueHandle_t queue, double/*!!*/ value)
     __update_inqueue(queue, &display);
 }
 
-void update_SP (QueueHandle_t queue, double/*!!*/ value)
+void update_SP (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_SP;

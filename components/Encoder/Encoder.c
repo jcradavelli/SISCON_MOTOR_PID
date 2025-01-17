@@ -184,10 +184,10 @@ void encoder_clear_encoderCount (encoder_h handler)
     ESP_ERROR_CHECK(pcnt_unit_clear_count(object->pcnt_unit));
 }
 
-// static double/*!!*/ __encoder_get_turns (encoder_h handler)
+// static double __encoder_get_turns (encoder_h handler)
 // {
 //     encoder_t *object = handler;
-//     double/*!!*/ value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = encoder_get_enconderCount_raw(handler);
@@ -198,9 +198,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// double/*!!*/ encoder_get_encoderPosition_grad(encoder_h handler)
+// double encoder_get_encoderPosition_grad(encoder_h handler)
 // {
-//     double/*!!*/ value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = __encoder_get_turns(handler) * 360;
@@ -208,9 +208,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// double/*!!*/ encoder_get_encoderPosition_rad(encoder_h handler)
+// double encoder_get_encoderPosition_rad(encoder_h handler)
 // {
-//     double/*!!*/ value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = (__encoder_get_turns(handler) * 2 )/ M_PI;
