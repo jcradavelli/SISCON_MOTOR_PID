@@ -44,7 +44,7 @@
 
 tskInput_args_t tskInputArgs;
 tskGraph_args_t tskGraphArgs;
-tskEncmot_args_t tskEncmotArgs;
+tskEncmot_args_t tskEncmotArgs[3];
 tskConsole_args_t tskConsoleArgs;
 
 #ifdef USE_SERVO_DC_GA25
@@ -52,7 +52,7 @@ static double kp=5000.0, ki=15000.0, kd = 50.0;
 #endif
 
 #ifdef USE_SERVO_24H55M020
-static double kp=0.07, ki=0.01, kd = 0.0;
+static double kp=0.01, ki=0.0005, kd = 0.0;
 #endif
 
 
@@ -164,7 +164,7 @@ void app_main(void)
     bool satured = false;
 
 #ifdef USE_SERVO_DC_GA25    
-    const encmot_config_t encmot_contig     = {
+    const encmot_config_t encmot_config     = {
         .encoder_config = {
             .gpio_encoder_a                     = EXAMPLE_EC11_GPIO_A,
             .gpio_encoder_b                     = EXAMPLE_EC11_GPIO_B,
@@ -187,44 +187,113 @@ void app_main(void)
 #endif
 
 #ifdef USE_SERVO_24H55M020
-    const encmot_config_t encmot_contig     = {
-        .encoder_config = {
-            .gpio_encoder_a                     = GPIO_NUM_5,
-            .gpio_encoder_b                     = GPIO_NUM_4,
-            .max_glitch_ns                      = 10,
-            // .gear_ratio_numerator               = 49,
-            // .gear_ration_denominator            = 20000,
-            .pulses_per_revolution              = 100,
-        },
-        .motor_config = {
-            .model                              = MOTOR_MODEL_SERVO_24H55M020,
-            .SERVO_24H55M020 = {
-                .break_gpio                     = GPIO_NUM_1,
-                .cw_ccw_gpio                    = GPIO_NUM_21,
-                .speed_gpio                     = GPIO_NUM_2,
-                .start_stop_gpio                = GPIO_NUM_42,
-                .status_gpio                    = GPIO_NUM_19,
-                .speed_max                      = 1.39,
-                .speed_min                      = 0.00863,
-                .speed_offset                   = 0,
-                .speed_gain                     = 39834,
-                .timer_num                      = LEDC_TIMER_0,
+    const encmot_config_t encmot_config[3]     = 
+    {
+        {
+            .encoder_config = {
+                .gpio_encoder_a                     = GPIO_NUM_5,
+                .gpio_encoder_b                     = GPIO_NUM_4,
+                .max_glitch_ns                      = 10,
+                // .gear_ratio_numerator               = 49,
+                // .gear_ration_denominator            = 20000,
+                .pulses_per_revolution              = 100,
             },
+            .motor_config = {
+                .model                              = MOTOR_MODEL_SERVO_24H55M020,
+                .SERVO_24H55M020 = {
+                    .break_gpio                     = GPIO_NUM_1,
+                    .cw_ccw_gpio                    = GPIO_NUM_21,
+                    .speed_gpio                     = GPIO_NUM_2,
+                    .start_stop_gpio                = GPIO_NUM_42,
+                    .status_gpio                    = GPIO_NUM_19,
+                    .speed_max                      = 1.39,
+                    .speed_min                      = 0.00863,
+                    .speed_offset                   = 0,
+                    .speed_gain                     = 39834,
+                    .timer_num                      = LEDC_TIMER_0,
+                },
+            },
+            .pid_config = {
+                .kp                                 = kp,
+                .ki                                 = ki,
+                .kd                                 = kd,           
+                .samplerate_ms                      = 130,
+                .isSatured                          = &satured,
+            }
         },
-        .pid_config = {
-            .kp                                 = kp,
-            .ki                                 = ki,
-            .kd                                 = kd,           
-            .samplerate_ms                      = 130,
-            .isSatured                          = &satured,
+        {
+            .encoder_config = {
+                .gpio_encoder_a                     = GPIO_NUM_??,
+                .gpio_encoder_b                     = GPIO_NUM_??,
+                .max_glitch_ns                      = 10,
+                // .gear_ratio_numerator               = 49,
+                // .gear_ration_denominator            = 20000,
+                .pulses_per_revolution              = 100,
+            },
+            .motor_config = {
+                .model                              = MOTOR_MODEL_SERVO_24H55M020,
+                .SERVO_24H55M020 = {
+                    .break_gpio                     = GPIO_NUM_??,
+                    .cw_ccw_gpio                    = GPIO_NUM_??,
+                    .speed_gpio                     = GPIO_NUM_??,
+                    .start_stop_gpio                = GPIO_NUM_??,
+                    .status_gpio                    = GPIO_NUM_??,
+                    .speed_max                      = 1.39,
+                    .speed_min                      = 0.00863,
+                    .speed_offset                   = 0,
+                    .speed_gain                     = 39834,
+                    .timer_num                      = LEDC_TIMER_1,
+                },
+            },
+            .pid_config = {
+                .kp                                 = kp,
+                .ki                                 = ki,
+                .kd                                 = kd,           
+                .samplerate_ms                      = 130,
+                .isSatured                          = &satured,
+            }
+        },
+        {
+            .encoder_config = {
+                .gpio_encoder_a                     = GPIO_NUM_??,
+                .gpio_encoder_b                     = GPIO_NUM_??,
+                .max_glitch_ns                      = 10,
+                // .gear_ratio_numerator               = 49,
+                // .gear_ration_denominator            = 20000,
+                .pulses_per_revolution              = 100,
+            },
+            .motor_config = {
+                .model                              = MOTOR_MODEL_SERVO_24H55M020,
+                .SERVO_24H55M020 = {
+                    .break_gpio                     = GPIO_NUM_??,
+                    .cw_ccw_gpio                    = GPIO_NUM_??,
+                    .speed_gpio                     = GPIO_NUM_??,
+                    .start_stop_gpio                = GPIO_NUM_??,
+                    .status_gpio                    = GPIO_NUM_??,
+                    .speed_max                      = 1.39,
+                    .speed_min                      = 0.00863,
+                    .speed_offset                   = 0,
+                    .speed_gain                     = 39834,
+                    .timer_num                      = LEDC_TIMER_2,
+                },
+            },
+            .pid_config = {
+                .kp                                 = kp,
+                .ki                                 = ki,
+                .kd                                 = kd,           
+                .samplerate_ms                      = 130,
+                .isSatured                          = &satured,
+            }
         }
     };
 #endif
 
 
 
-    encmot_h encmot = NULL;
-    encmot = encmot_attach(encmot_contig);
+    encmot_h encmot[3] = {};
+
+    for (int i = 0; i<3; i++)
+        encmot[i] = encmot_attach(encmot_config[i]);
 
     // Configura as entradas dos botões
     const gpio_config_t gpio_config_buttons = {
@@ -260,9 +329,13 @@ void app_main(void)
     tskGraphArgs.logQueue = LogQueue;
     create_tsk_graph(&tskGraphArgs, configMAX_PRIORITIES/2-1, 0);
 
-    tskEncmotArgs.encmot = encmot;
-    tskEncmotArgs.logQueue = LogQueue;
-    create_tsk_encmot (&tskEncmotArgs, configMAX_PRIORITIES/2+1 ,1);
+
+    for (int i = 0; i<3; i++)
+    {
+        tskEncmotArgs[i].encmot = encmot[i];
+        tskEncmotArgs[i].logQueue = LogQueue;
+        create_tsk_encmot (&tskEncmotArgs[i], configMAX_PRIORITIES/2+1 ,1);
+    }
 
 
 
