@@ -191,8 +191,8 @@ void app_main(void)
     {
         {
             .encoder_config = {
-                .gpio_encoder_a                     = GPIO_NUM_48, //TODO: trocar, sinal de USB
-                .gpio_encoder_b                     = GPIO_NUM_47, //TODO: trocar, sinal de USB
+                .gpio_encoder_a                     = GPIO_NUM_48, 
+                .gpio_encoder_b                     = GPIO_NUM_47, 
                 .max_glitch_ns                      = 10,
                 // .gear_ratio_numerator               = 49,
                 // .gear_ration_denominator            = 20000,
@@ -201,11 +201,11 @@ void app_main(void)
             .motor_config = {
                 .model                              = MOTOR_MODEL_SERVO_24H55M020,
                 .SERVO_24H55M020 = {
-                    .speed_gpio                     = GPIO_NUM_37,  //GPIO_NUM_2,
-                    .break_gpio                     = GPIO_NUM_36,  //GPIO_NUM_1,
-                    .cw_ccw_gpio                    = GPIO_NUM_35,  //GPIO_NUM_21,
-                    // .start_stop_gpio                = GPIO_NUM_,  //GPIO_NUM_42,
-                    // .status_gpio                    = GPIO_NUM_,  //GPIO_NUM_19,
+                    .speed_gpio                     = GPIO_NUM_41,  //GPIO_NUM_2,
+                    .break_gpio                     = GPIO_NUM_40,  //GPIO_NUM_1,
+                    .cw_ccw_gpio                    = GPIO_NUM_39,  //GPIO_NUM_21,
+                    .start_stop_gpio                = GPIO_NUM_1,  //GPIO_NUM_42,
+                    .status_gpio                    = GPIO_NUM_2,  //GPIO_NUM_19,
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
