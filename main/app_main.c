@@ -27,7 +27,7 @@
 
 #include "esp_rom_sys.h"
 #include "soc/reset_reasons.h"
-  
+
 
 
 
@@ -61,11 +61,11 @@ static double kp=0.01, ki=0.0005, kd = 0.0;
 
 void app_main(void)
 {
-    const tskConsole_args_t console_config = {    
-        .gretings = 
+    const tskConsole_args_t console_config = {
+        .gretings =
             "\n\n\n\n\n\n\n\n"
             "\033[0;36m" // Cor ciano
-            "===============================================================================================================\n\n\n"                                      
+            "===============================================================================================================\n\n\n"
             "  @@@@@@@@@@@@@ \n"
             " @@@          @@ \n"
             " @@     @@@    @@ \n"
@@ -74,8 +74,8 @@ void app_main(void)
             " @@@   @@      @@@@@      @@            ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
             "  @@@  @@         @@@@@    @@           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
             "   @@  @@                   @           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n" 
-            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n" 
+            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
+            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
             " @     @@    @@@@  @@@@@@@@        ######   #######  ######## ####  #######        ##     ######   ######     \n"
             " @     @@ @@@@@ @@@@@@@@@@ \n"
             " @@    @@@@@   @@              Controlador de Manipulador Esferico Paralelo   \n"
@@ -146,24 +146,14 @@ void app_main(void)
 
     vTaskDelay(pdMS_TO_TICKS(1000));
     create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
-    vTaskDelay(pdMS_TO_TICKS(1000));
 
-        /*
-    ESP_LOG_INFO
-    ESP_LOG_ERROR
-    ESP_LOG_NONE
-    */
-    esp_log_level_set("*",                  ESP_LOG_NONE);
-    // esp_log_level_set("EncMot",             ESP_LOG_INFO);
-    // esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
-    // esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);
-    // esp_log_level_set("motor",              ESP_LOG_ERROR);
-    // esp_log_level_set("encoder",            ESP_LOG_NONE);
+
+
 
 
     bool satured = false;
 
-#ifdef USE_SERVO_DC_GA25    
+#ifdef USE_SERVO_DC_GA25
     const encmot_config_t encmot_config     = {
         .encoder_config = {
             .gpio_encoder_a                     = EXAMPLE_EC11_GPIO_A,
@@ -179,7 +169,7 @@ void app_main(void)
         .pid_config = {
             .kp                                 = kp,
             .ki                                 = ki,
-            .kd                                 = kd,           
+            .kd                                 = kd,
             .samplerate_ms                      = 130,
             .isSatured                          = &satured,
         }
@@ -187,12 +177,12 @@ void app_main(void)
 #endif
 
 #ifdef USE_SERVO_24H55M020
-    const encmot_config_t encmot_config[3]     = 
+    const encmot_config_t encmot_config[3]     =
     {
         {
             .encoder_config = {
-                .gpio_encoder_a                     = GPIO_NUM_48, 
-                .gpio_encoder_b                     = GPIO_NUM_47, 
+                .gpio_encoder_a                     = GPIO_NUM_48,
+                .gpio_encoder_b                     = GPIO_NUM_47,
                 .max_glitch_ns                      = 10,
                 // .gear_ratio_numerator               = 49,
                 // .gear_ration_denominator            = 20000,
@@ -201,11 +191,11 @@ void app_main(void)
             .motor_config = {
                 .model                              = MOTOR_MODEL_SERVO_24H55M020,
                 .SERVO_24H55M020 = {
-                    .speed_gpio                     = GPIO_NUM_41,  //GPIO_NUM_2,
-                    .break_gpio                     = GPIO_NUM_40,  //GPIO_NUM_1,
-                    .cw_ccw_gpio                    = GPIO_NUM_39,  //GPIO_NUM_21,
-                    .start_stop_gpio                = GPIO_NUM_1,  //GPIO_NUM_42,
-                    .status_gpio                    = GPIO_NUM_2,  //GPIO_NUM_19,
+                    .speed_gpio                     = GPIO_NUM_37,  //GPIO_NUM_2,
+                    .break_gpio                     = GPIO_NUM_36,  //GPIO_NUM_1,
+                    .cw_ccw_gpio                    = GPIO_NUM_35,  //GPIO_NUM_21,
+                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
+                    .status_gpio                    = GPIO_NUM_2,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -216,7 +206,7 @@ void app_main(void)
             .pid_config = {
                 .kp                                 = kp,
                 .ki                                 = ki,
-                .kd                                 = kd,           
+                .kd                                 = kd,
                 .samplerate_ms                      = 130,
                 .isSatured                          = &satured,
             }
@@ -236,8 +226,8 @@ void app_main(void)
                     .speed_gpio                     = GPIO_NUM_2,
                     .break_gpio                     = GPIO_NUM_42, // TODO: trocar sinal do LED RGB
                     .cw_ccw_gpio                    = GPIO_NUM_41,
-                    // .start_stop_gpio                = GPIO_NUM_??,
-                    // .status_gpio                    = GPIO_NUM_??,
+                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
+                    .status_gpio                    = GPIO_NUM_2,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -248,7 +238,7 @@ void app_main(void)
             .pid_config = {
                 .kp                                 = kp,
                 .ki                                 = ki,
-                .kd                                 = kd,           
+                .kd                                 = kd,
                 .samplerate_ms                      = 130,
                 .isSatured                          = &satured,
             }
@@ -268,8 +258,8 @@ void app_main(void)
                     .speed_gpio                     = GPIO_NUM_4,
                     .break_gpio                     = GPIO_NUM_5,
                     .cw_ccw_gpio                    = GPIO_NUM_6,
-                    // .start_stop_gpio                = GPIO_NUM_??,
-                    // .status_gpio                    = GPIO_NUM_??,
+                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
+                    .status_gpio                    = GPIO_NUM_2,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -280,7 +270,7 @@ void app_main(void)
             .pid_config = {
                 .kp                                 = kp,
                 .ki                                 = ki,
-                .kd                                 = kd,           
+                .kd                                 = kd,
                 .samplerate_ms                      = 130,
                 .isSatured                          = &satured,
             }
@@ -321,11 +311,11 @@ void app_main(void)
 
     assert(LogQueue != NULL);
     assert(xEventGroup != NULL);
-    
+
     tskInputArgs.encmot = encmot;
     tskInputArgs.logQueue = LogQueue;
     create_tsk_input (&tskInputArgs, configMAX_PRIORITIES/2, 1);
-    
+
     tskGraphArgs.logQueue = LogQueue;
     create_tsk_graph(&tskGraphArgs, configMAX_PRIORITIES/2-1, 0);
 
@@ -339,8 +329,18 @@ void app_main(void)
 
 
 
-
-
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    /*
+    ESP_LOG_INFO
+    ESP_LOG_ERROR
+    ESP_LOG_NONE
+    */
+    esp_log_level_set("*",                  ESP_LOG_NONE);
+    // esp_log_level_set("EncMot",             ESP_LOG_INFO);
+    // esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
+    // esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);
+    // esp_log_level_set("motor",              ESP_LOG_ERROR);
+    // esp_log_level_set("encoder",            ESP_LOG_NONE);
 
 
 }

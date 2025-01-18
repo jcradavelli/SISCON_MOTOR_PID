@@ -48,11 +48,11 @@ typedef struct motor_hand_SERVO_24H55M020_{
 
 static motor_hand_t __motor_servo_24h55m020_attach (    
     // TODO: Parametros são os pios de cada funcao
-    const int speed_gpio     ,
-    const int enable_gpio,
-    const int break_gpio     ,
-    const int cw_ccw_gpio    ,
-    const int status_gpio    ,
+    const uint64_t speed_gpio     ,
+    const uint64_t enable_gpio,
+    const uint64_t break_gpio     ,
+    const uint64_t cw_ccw_gpio    ,
+    const uint64_t status_gpio    ,
     const ledc_timer_t  timer_num,
     const double speed_offset,
     const double speed_gain,
@@ -96,9 +96,9 @@ static motor_hand_t __motor_servo_24h55m020_attach (
     };
     // Configura os sinais de controle do motor
     const gpio_config_t gpio_config_mcu_outputs = {
-        .pin_bit_mask = BIT(enable_gpio) |
-                        BIT(break_gpio) |
-                        BIT(cw_ccw_gpio),
+        .pin_bit_mask = BIT64((uint64_t) enable_gpio) |
+                        BIT64((uint64_t) break_gpio) |
+                        BIT64((uint64_t) cw_ccw_gpio),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
