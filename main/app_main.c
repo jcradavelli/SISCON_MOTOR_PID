@@ -52,7 +52,8 @@ static double kp=5000.0, ki=15000.0, kd = 50.0;
 #endif
 
 #ifdef USE_SERVO_24H55M020
-static double kp=0.01, ki=0.0005, kd = 0.0;
+//static double kp=0.01, ki=0.0005, kd = 0.0; // posição
+static double kp=1, ki=0.0005, kd = 0.0; // velocidade
 #endif
 
 
@@ -195,7 +196,7 @@ void app_main(void)
                     .break_gpio                     = GPIO_NUM_36,  //GPIO_NUM_1,
                     .cw_ccw_gpio                    = GPIO_NUM_35,  //GPIO_NUM_21,
                     .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_2,  // nao usado
+                    .status_gpio                    = GPIO_NUM_21,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -227,7 +228,7 @@ void app_main(void)
                     .break_gpio                     = GPIO_NUM_42, // TODO: trocar sinal do LED RGB
                     .cw_ccw_gpio                    = GPIO_NUM_41,
                     .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_2,  // nao usado
+                    .status_gpio                    = GPIO_NUM_21,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -259,7 +260,7 @@ void app_main(void)
                     .break_gpio                     = GPIO_NUM_5,
                     .cw_ccw_gpio                    = GPIO_NUM_6,
                     .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_2,  // nao usado
+                    .status_gpio                    = GPIO_NUM_21,  // nao usado
                     .speed_max                      = 1.39,
                     .speed_min                      = 0.00863,
                     .speed_offset                   = 0,
@@ -282,7 +283,7 @@ void app_main(void)
 
     encmot_h encmot[3] = {};
 
-    for (int i = 0; i<1; i++)
+    for (int i = 0; i<3; i++)
         encmot[i] = encmot_attach(encmot_config[i]);
 
     // Configura as entradas dos botões
@@ -320,7 +321,7 @@ void app_main(void)
     create_tsk_graph(&tskGraphArgs, configMAX_PRIORITIES/2-1, 0);
 
 
-    for (int i = 0; i<1; i++)
+    for (int i = 0; i<3; i++)
     {
         tskEncmotArgs[i].encmot = encmot[i];
         tskEncmotArgs[i].logQueue = LogQueue;
