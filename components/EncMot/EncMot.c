@@ -41,6 +41,10 @@ static const char *TAG_ACTION_SET_POSITION = "Seting_Position";
 #define PID_LIM_MAX_INT         0.7f    // Valor máximo no termo integral do PID
 
 
+#define SPEED_CONSTANT          (1.0/314.15)
+#define POSITION_CONSTANT       (M_PI/200.0)
+
+
 
 
 typedef struct encmot_{
@@ -139,7 +143,7 @@ static double __contmode_pid_speed (encmot_h handler, encoder_sample_t encoder_s
     double pid_out;
 
     /* Coloca os dados de saída do encoder, na entrada do PID  */
-    object->pid_measure = encoder_sample.speed / 314.15;
+    object->pid_measure = encoder_sample.speed * SPEED_CONSTANT;
 
     /* Roda a subrotina de controle */
     pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, debugOut);
@@ -153,7 +157,7 @@ static double __contmode_pid_position (encmot_h handler, encoder_sample_t encode
     double pid_out;
 
     /* Coloca os dados de saída do encoder, na entrada do PID  */
-    object->pid_measure = encoder_sample.count;
+    object->pid_measure = encoder_sample.count * POSITION_CONSTANT;
 
     /* Roda a subrotina de controle */
     pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, debugOut);
@@ -237,7 +241,7 @@ void encmot_set_speed (encmot_h handler, double setpoint)
     }
 
     // TODO: Normalizar a velocidade entre -1 e 1
-    object->setpoint = setpoint / 314.15;
+    object->setpoint = setpoint * SPEED_CONSTANT;
 
     ESP_LOGI(ACTION,"Done!");
 }
@@ -246,7 +250,7 @@ void encmot_read_speed (encmot_h handler, double *speed)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
-    *speed = encoder_get_lastSample(object->encoder).speed / 314.15;
+    *speed = encoder_get_lastSample(object->encoder).speed * SPEED_CONSTANT;
 }
 
 
@@ -267,7 +271,7 @@ void encmot_set_position (encmot_h handler, double setpoint)
     }
 
     // TODO: Normalizar a posicao para radianos
-    object->setpoint = setpoint;
+    object->setpoint = setpoint * POSITION_CONSTANT;
 
     ESP_LOGI(ACTION,"Done!");
 }
@@ -276,7 +280,7 @@ void encmot_read_position (encmot_h handler, double *position)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
-    *position = encoder_get_lastSample(object->encoder).count;
+    *position = encoder_get_lastSample(object->encoder).count * POSITION_CONSTANT;
 }
 
 void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd)

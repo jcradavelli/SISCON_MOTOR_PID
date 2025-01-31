@@ -53,7 +53,16 @@
     "console_encmot.h": "c",
     "reset_reasons.h": "c",
     "esp_rom_sys.h": "c",
-    "system_internal.h": "c"
+    "system_internal.h": "c",
+    "numbers": "c",
+    "cmath": "c",
+    "numeric": "c",
+    "ratio": "c",
+    "*.tcc": "c",
+    "cinttypes": "c",
+    "netfwd": "c",
+    "mep_cinematics.h": "c",
+    "functional": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {
