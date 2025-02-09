@@ -20,11 +20,6 @@ extern "C" {
 #define EXAMPLE_EC11_GPIO_A     34// 34
 #define EXAMPLE_EC11_GPIO_B     34// 35
 
-// #define MOTOR_CONTROL_A         27
-// #define MOTOR_CONTROL_B         26
-
-#define LED_OUT                 19
-
 
 typedef struct tskInput_args_
 {
