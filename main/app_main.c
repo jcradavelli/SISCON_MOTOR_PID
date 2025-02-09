@@ -22,11 +22,14 @@
 #include "task_input.h"
 #include "task_encmot.h"
 #include "task_graph.h"
-#include "myConsole.h"
-#include "Version_tools.h"
+#include "console_interface.h"
+#include "git_tools.h"
 
 #include "esp_rom_sys.h"
 #include "soc/reset_reasons.h"
+
+#include "mep.h"
+#include "console_interface.h"
 
 
 
@@ -65,28 +68,31 @@ void app_main(void)
     const tskConsole_args_t console_config = {
         .gretings =
             "\n\n\n\n\n\n\n\n"
-            "\033[0;36m" // Cor ciano
-            "===============================================================================================================\n\n\n"
-            "  @@@@@@@@@@@@@ \n"
-            " @@@          @@ \n"
-            " @@     @@@    @@ \n"
-            " @     @@@@@@@  @@@@@@@@@@ \n"
-            " @     @@   @@@@  @@@@@@@@@             ## ##     ## ##       ####  #######     ########  ######   ######     \n"
-            " @@@   @@      @@@@@      @@            ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
-            "  @@@  @@         @@@@@    @@           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            "   @@  @@                   @           ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            "  @@@  @@          @@@@    @@     ##    ## ##     ## ##        ##  ##     ##       ##    ##       ##          \n"
-            " @@    @@       @@@@@     @@      ##    ## ##     ## ##        ##  ##     ##       ##    ##    ## ##    ##    \n"
-            " @     @@    @@@@  @@@@@@@@        ######   #######  ######## ####  #######        ##     ######   ######     \n"
-            " @     @@ @@@@@ @@@@@@@@@@ \n"
-            " @@    @@@@@   @@              Controlador de Manipulador Esferico Paralelo   \n"
-            "  @@          @@               2025/1                                         \n"
-            "   @@@@@@@@@@@@ \n"
-            "    @@@@@@@@@ \n\n\n"
-            "===============================================================================================================\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#####################################################################################################################################################\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#####################################################################################################################################################\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::::::::::::                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::::::                            ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::::                                ::::::::::                                                     :::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::       "LOG_COLOR(LOG_COLOR_GREEN)" _ _ _ _ _"LOG_COLOR(LOG_COLOR_PURPLE)"                   ::::::::      cCCCCCCC    mM   Mm    eeEEEEEEEe  PPPPPPPpp   :::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::                   #                    ::::::     cCC         mMMM MMMM  eEEe         PPP    PPp  :::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::                   #.#                    :::::     CCC         MM mmm MM  eEEEEEEEEee  PPPPPPPpp   :::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::                  #...#      "LOG_COLOR(LOG_COLOR_BLUE)" / "LOG_COLOR(LOG_COLOR_PURPLE)"          :::::.    cCC         MM  M  MM  eEEe         PP         .:::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::                 #.....#    "LOG_COLOR(LOG_COLOR_BLUE)" /  "LOG_COLOR(LOG_COLOR_PURPLE)"          :::::...   cCCCCCCC   MM     MM   eEEEEEEEee  PP       ...:::::::::::::::::        :::    ::::    :: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::                #.......#  "LOG_COLOR(LOG_COLOR_BLUE)" / "LOG_COLOR(LOG_COLOR_PURPLE)"            :::::....                                            .....::::::::::::::::::::  :::::  ::::::  ::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::               #.........# "LOG_COLOR(LOG_COLOR_BLUE)"/ "LOG_COLOR(LOG_COLOR_PURPLE)"             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  :::::  ::::::  ::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::              # # # # # # #               ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  ::::::    ::::    :: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::              "LOG_COLOR(LOG_COLOR_RED)"\\  "LOG_COLOR(LOG_COLOR_PURPLE)"                         :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::               "LOG_COLOR(LOG_COLOR_RED)"\\  "LOG_COLOR(LOG_COLOR_PURPLE)"                        :::::::::::::::::::::::::::::::::::::::::::::::::::::  :::::::    :::::  ::::     ::::::  ::::  :::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)"::::                "LOG_COLOR(LOG_COLOR_RED)"\\  "LOG_COLOR(LOG_COLOR_PURPLE)"                       :::::::::::::::::::::::::::::::::::::::::::::::::::  ::  ::::  ::  ::  ::  ::  ::::::::  :::  ::  :: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::                "LOG_COLOR(LOG_COLOR_RED)"\\  "LOG_COLOR(LOG_COLOR_PURPLE)"                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::  :::  :::: ::::::  ::    :::::  ::::::::  :: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::                                    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::  ::::::  ::  ::::  :::::::  :::  :::::::  :::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::::::                              ::::::::::::::::::::::::::::::::::::::::::::::::::::::::      :::::    :::      ::    :::  ::::::      :: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#"LOG_COLOR(LOG_COLOR_PURPLE)":::::::::::::::                      ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: "LOG_COLOR(LOG_COLOR_CYAN)"#\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"#####################################################################################################################################################\n"
+            LOG_COLOR(LOG_COLOR_CYAN)"######################################################################################################################## "LOG_BOLD(LOG_COLOR_PURPLE)" Por julio cesar radavelli"LOG_COLOR(LOG_COLOR_CYAN)" #\n"
             LOG_RESET_COLOR
             ,
-        .version = version,
+        .version = STRING_GIT_DESCRIBE_TAGS_DIRTY_ALWAYS,
     };
 
 
@@ -149,162 +155,30 @@ void app_main(void)
     create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
+    //esp_log_level_set("*",                  ESP_LOG_NONE);
 
 
 
-    bool satured = false;
-
-#ifdef USE_SERVO_DC_GA25
-    const encmot_config_t encmot_config     = {
-        .encoder_config = {
-            .gpio_encoder_a                     = EXAMPLE_EC11_GPIO_A,
-            .gpio_encoder_b                     = EXAMPLE_EC11_GPIO_B,
-            .max_glitch_ns                      = 100,
-            // .gear_ratio_numerator               = 49,
-            // .gear_ration_denominator            = 20000,
-        },
-        .motor_config = {
-            .DC_GA25.motor_control_a            = MOTOR_CONTROL_A,
-            .DC_GA25.motor_control_b            = MOTOR_CONTROL_B,
-        },
-        .pid_config = {
-            .kp                                 = kp,
-            .ki                                 = ki,
-            .kd                                 = kd,
-            .samplerate_ms                      = 130,
-            .isSatured                          = &satured,
-        }
-    };
-#endif
-
-#ifdef USE_SERVO_24H55M020
-    const encmot_config_t encmot_config[3]     =
-    {
-        {
-            .encoder_config = {
-                .gpio_encoder_a                     = GPIO_NUM_48,
-                .gpio_encoder_b                     = GPIO_NUM_47,
-                .max_glitch_ns                      = 10,
-                // .gear_ratio_numerator               = 49,
-                // .gear_ration_denominator            = 20000,
-                .pulses_per_revolution              = 100,
-            },
-            .motor_config = {
-                .model                              = MOTOR_MODEL_SERVO_24H55M020,
-                .SERVO_24H55M020 = {
-                    .speed_gpio                     = GPIO_NUM_37,  //GPIO_NUM_2,
-                    .break_gpio                     = GPIO_NUM_36,  //GPIO_NUM_1,
-                    .cw_ccw_gpio                    = GPIO_NUM_35,  //GPIO_NUM_21,
-                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_21,  // nao usado
-                    .speed_max                      = 1.39,
-                    .speed_min                      = 0.00863,
-                    .speed_offset                   = 0,
-                    .speed_gain                     = 39834,
-                    .timer_num                      = LEDC_TIMER_0,
-                },
-            },
-            .pid_config = {
-                .kp                                 = kp,
-                .ki                                 = ki,
-                .kd                                 = kd,
-                .samplerate_ms                      = 130,
-                .isSatured                          = &satured,
-            }
-        },
-        {
-            .encoder_config = {
-                .gpio_encoder_a                     = GPIO_NUM_40,
-                .gpio_encoder_b                     = GPIO_NUM_39,
-                .max_glitch_ns                      = 10,
-                // .gear_ratio_numerator               = 49,
-                // .gear_ration_denominator            = 20000,
-                .pulses_per_revolution              = 100,
-            },
-            .motor_config = {
-                .model                              = MOTOR_MODEL_SERVO_24H55M020,
-                .SERVO_24H55M020 = {
-                    .speed_gpio                     = GPIO_NUM_2,
-                    .break_gpio                     = GPIO_NUM_42, // TODO: trocar sinal do LED RGB
-                    .cw_ccw_gpio                    = GPIO_NUM_41,
-                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_21,  // nao usado
-                    .speed_max                      = 1.39,
-                    .speed_min                      = 0.00863,
-                    .speed_offset                   = 0,
-                    .speed_gain                     = 39834,
-                    .timer_num                      = LEDC_TIMER_1,
-                },
-            },
-            .pid_config = {
-                .kp                                 = kp,
-                .ki                                 = ki,
-                .kd                                 = kd,
-                .samplerate_ms                      = 130,
-                .isSatured                          = &satured,
-            }
-        },
-        {
-            .encoder_config = {
-                .gpio_encoder_a                     = GPIO_NUM_7,
-                .gpio_encoder_b                     = GPIO_NUM_15,
-                .max_glitch_ns                      = 10,
-                // .gear_ratio_numerator               = 49,
-                // .gear_ration_denominator            = 20000,
-                .pulses_per_revolution              = 100,
-            },
-            .motor_config = {
-                .model                              = MOTOR_MODEL_SERVO_24H55M020,
-                .SERVO_24H55M020 = {
-                    .speed_gpio                     = GPIO_NUM_4,
-                    .break_gpio                     = GPIO_NUM_5,
-                    .cw_ccw_gpio                    = GPIO_NUM_6,
-                    .start_stop_gpio                = GPIO_NUM_1,  // nao usado
-                    .status_gpio                    = GPIO_NUM_21,  // nao usado
-                    .speed_max                      = 1.39,
-                    .speed_min                      = 0.00863,
-                    .speed_offset                   = 0,
-                    .speed_gain                     = 39834,
-                    .timer_num                      = LEDC_TIMER_2,
-                },
-            },
-            .pid_config = {
-                .kp                                 = kp,
-                .ki                                 = ki,
-                .kd                                 = kd,
-                .samplerate_ms                      = 130,
-                .isSatured                          = &satured,
-            }
-        }
-    };
-#endif
-
-
-
-    encmot_h encmot[3] = {};
-
-    for (int i = 0; i<3; i++)
-        encmot[i] = encmot_attach(encmot_config[i]);
 
     // Configura as entradas dos botões
-    const gpio_config_t gpio_config_buttons = {
-        .pin_bit_mask = BIT(BUTTON_1) | BIT(BUTTON_2) | BIT(BUTTON_3) | BIT(BUTTON_4),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&gpio_config_buttons));
+    // const gpio_config_t gpio_config_buttons = {
+    //     .pin_bit_mask = BIT(BUTTON_1) | BIT(BUTTON_2) | BIT(BUTTON_3) | BIT(BUTTON_4),
+    //     .mode = GPIO_MODE_INPUT,
+    //     .pull_up_en = GPIO_PULLUP_ENABLE,
+    //     .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    //     .intr_type = GPIO_INTR_DISABLE,
+    // };
+    // ESP_ERROR_CHECK(gpio_config(&gpio_config_buttons));
 
     // Configura a saída dos leds
-    const gpio_config_t gpio_config_led = {
-        .pin_bit_mask = BIT(LED_OUT),
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&gpio_config_led));
+    // const gpio_config_t gpio_config_led = {
+    //     .pin_bit_mask = BIT(LED_OUT),
+    //     .mode = GPIO_MODE_OUTPUT,
+    //     .pull_up_en = GPIO_PULLUP_DISABLE,
+    //     .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    //     .intr_type = GPIO_INTR_DISABLE,
+    // };
+    // ESP_ERROR_CHECK(gpio_config(&gpio_config_led));
 
 
     QueueHandle_t LogQueue = xQueueCreate(10, sizeof(encmotDebugStream_t));
@@ -312,21 +186,25 @@ void app_main(void)
 
     assert(LogQueue != NULL);
     assert(xEventGroup != NULL);
+    
+    //encmot_h            encmot[3] = {};
+    mep_h mep = mep_init(LogQueue);
 
-    tskInputArgs.encmot = encmot;
-    tskInputArgs.logQueue = LogQueue;
-    create_tsk_input (&tskInputArgs, configMAX_PRIORITIES/2, 1);
+    // registra o MEP no console
+    console_interface_mep_t* interface_mep = malloc(sizeof(console_interface_mep_t));
+    assert(interface_mep != NULL);
+    interface_mep->handler = mep;
+    interface_mep->setNormal = &mep_setPosition_byNormal;
+    register_mep(interface_mep);
+
+
+    // tskInputArgs.encmot = encmot;
+    // tskInputArgs.logQueue = LogQueue;
+    // create_tsk_input (&tskInputArgs, configMAX_PRIORITIES/2, 1);
 
     tskGraphArgs.logQueue = LogQueue;
     create_tsk_graph(&tskGraphArgs, configMAX_PRIORITIES/2-1, 0);
 
-
-    for (int i = 0; i<3; i++)
-    {
-        tskEncmotArgs[i].encmot = encmot[i];
-        tskEncmotArgs[i].logQueue = LogQueue;
-        create_tsk_encmot (&tskEncmotArgs[i], configMAX_PRIORITIES/2+1 ,1);
-    }
 
 
 
@@ -336,7 +214,7 @@ void app_main(void)
     ESP_LOG_ERROR
     ESP_LOG_NONE
     */
-    esp_log_level_set("*",                  ESP_LOG_NONE);
+    //esp_log_level_set("*",                  ESP_LOG_NONE);
     // esp_log_level_set("EncMot",             ESP_LOG_INFO);
     // esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
     // esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);

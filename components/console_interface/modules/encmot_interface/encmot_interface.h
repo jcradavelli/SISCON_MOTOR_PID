@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 
-#include "myConsole.h"
+#include "console_interface.h"
 #include "linenoise/linenoise.h"
 #include "argtable3/argtable3.h"
 

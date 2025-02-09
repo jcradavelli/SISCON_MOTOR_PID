@@ -243,7 +243,7 @@ void encoder_job (encoder_h handler)
     dtime = (time - object->last_sample.time);
     ESP_LOGE(TAG,"\n>debug:%f\r\n",(count - object->last_sample.count));
     ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
-    if (abs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
+    if (fabs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
     {
         ESP_LOGE(TAG,"\n>count:%f\r\n",count);
         ESP_LOGE(TAG,"\n>object->last_sample.count:%f\r\n",object->last_sample.count);

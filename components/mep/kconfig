@@ -1,0 +1,194 @@
+menu "mep - manipulador esferico paralelo"
+
+    choice MOTOR_MODEL
+        bool "opção de motor a ser utilizado"
+        default SERVO_24H55M020
+
+        config DC_GA25
+            bool "Utilizaz o motor DC_GA25"
+            help
+                Motor DC modelo DC_GA25 com enconder acoplado
+
+        config SERVO_24H55M020
+            bool "Utilizaz o motor 24H55M020"
+            help
+                Motor tipo servo, modelo 24H55M020, o encoder deve ser adaptado ao motor
+    endchoice
+
+    
+    if SERVO_24H55M020
+
+    menu "parâmetros do encoder"
+        
+        config MEP_SERVO_24H55M020_MAX_GLITCH_NS                  
+            int "Tempo de de filtro de glitch, pulsos menores serão ignorados"
+            default 10
+    
+        config MEP_SERVO_24H55M020_PULSES_PER_REVOLUTION          
+            int "Numero de pulsos por volta"
+            default 100
+    
+        config MEP_SERVO_24H55M020_SPEED_OFFSET
+            int "Offset de Velocidade"
+            default 0
+    
+        config MEP_SERVO_24H55M020_SPEED_GAIN
+            int "Ganho de Velocidade"
+            default 39834
+    endmenu
+
+
+    menu "limites do motor"
+
+        config MEP_SERVO_24H55M020_SPEED_MAX_NUM
+            int "Numerador da Velocidade Maxima"
+            default 139
+
+        config MEP_SERVO_24H55M020_SPEED_MAX_DEN
+            int "Denominador da Velocidade Maxima"
+            default 100
+
+        config MEP_SERVO_24H55M020_SPEED_MIN_NUM
+            int "Numerador da Velocidade Minima"
+            default 863
+
+        config MEP_SERVO_24H55M020_SPEED_MIN_DEN
+            int "Denominador da Velocidade Minima"
+            default 100000
+    
+    endmenu
+
+    menu "configuração do controlador"
+
+        config MEP_SERVO_24H55M020_KP_NUM
+            int "Constante Proporcional (Kp) [numerador]"
+            default 1
+
+        config MEP_SERVO_24H55M020_KP_DEN
+            int "Constante Proporcional (Kp) [denominador]"
+            default 1        
+
+        config MEP_SERVO_24H55M020_KI_NUM
+            int "Constante Integral (Ki) [numerador]"
+            default 5 
+
+        config MEP_SERVO_24H55M020_KI_DEN
+            int "Constante Integral (Ki) [denominador]"
+            default 1000         
+
+        config MEP_SERVO_24H55M020_KD_NUM
+            int "Constante Derivativa (Kd) [numerador]"
+            default 0
+
+        config MEP_SERVO_24H55M020_KD_DEN
+            int "Constante Derivativa (Kd) [denominador]"
+            default 1
+
+        config MEP_SERVO_24H55M020_SAMPLERATE_MS
+            int "Taxa de Amostragem (em ms)"
+            default 130
+
+    endmenu
+
+    menu "configurações do motor 1"
+
+    config MEP_SERVO_24H55M020_CH1_NCODER_A_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 1"
+        default 48
+
+    config MEP_SERVO_24H55M020_CH1_NCODER_B_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 1"
+        default 47
+
+    config MEP_SERVO_24H55M020_CH1_SPEED_GPIO
+        int "GPIO para Controle de Velocidade do motor 1"
+        default 37
+
+    config MEP_SERVO_24H55M020_CH1_BREAK_GPIO
+        int "GPIO para Controle de Freio do motor 1"
+        default 36
+
+    config MEP_SERVO_24H55M020_CH1_CW_CCW_GPIO
+        int "GPIO para Controle de Direção (CW/CCW) do motor 1"
+        default 35
+
+    config MEP_SERVO_24H55M020_CH1_START_STOP_GPIO
+        int "GPIO para Controle de Início/Parada do motor 1"
+        default 1
+
+    config MEP_SERVO_24H55M020_CH1_STATUS_GPIO
+        int "GPIO para Controle de Status do motor 1"
+        default 21
+
+    endmenu
+
+    menu "configurações do motor 2"
+
+    config MEP_SERVO_24H55M020_CH2_NCODER_A_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 2"
+        default 40
+        
+    config MEP_SERVO_24H55M020_CH2_NCODER_B_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 2"
+        default 39
+
+    config MEP_SERVO_24H55M020_CH2_SPEED_GPIO
+        int "GPIO para Controle de Velocidade do motor 2"
+        default 2
+
+    config MEP_SERVO_24H55M020_CH2_BREAK_GPIO
+        int "GPIO para Controle de Freio do motor 2"
+        default 42
+
+    config MEP_SERVO_24H55M020_CH2_CW_CCW_GPIO
+        int "GPIO para Controle de Direção (CW/CCW) do motor 2"
+        default 41
+
+    config MEP_SERVO_24H55M020_CH2_START_STOP_GPIO
+        int "GPIO para Controle de Início/Parada do motor 2"
+        default 1
+
+    config MEP_SERVO_24H55M020_CH2_STATUS_GPIO
+        int "GPIO para Controle de Status do motor 2"
+        default 21
+
+    endmenu
+
+    menu "configurações do motor 3"
+
+
+    config MEP_SERVO_24H55M020_CH3_NCODER_A_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 3"
+        default 7
+        
+    config MEP_SERVO_24H55M020_CH3_NCODER_B_GPIO
+        int "GPIO de entrada do sinal A do enconder do motor 3"
+        default 15
+
+    config MEP_SERVO_24H55M020_CH3_SPEED_GPIO
+        int "GPIO para Controle de Velocidade do motor 3"
+        default 4
+
+    config MEP_SERVO_24H55M020_CH3_BREAK_GPIO
+        int "GPIO para Controle de Freio do motor 3"
+        default 5
+
+    config MEP_SERVO_24H55M020_CH3_CW_CCW_GPIO
+        int "GPIO para Controle de Direção (CW/CCW) do motor 3"
+        default 6
+
+    config MEP_SERVO_24H55M020_CH3_START_STOP_GPIO
+        int "GPIO para Controle de Início/Parada do motor 3"
+        default 1
+
+    config MEP_SERVO_24H55M020_CH3_STATUS_GPIO
+        int "GPIO para Controle de Status do motor 3"
+        default 21
+
+    endmenu
+
+        
+    endif
+                
+
+endmenu

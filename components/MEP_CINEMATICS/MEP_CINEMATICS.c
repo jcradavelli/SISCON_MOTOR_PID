@@ -26,9 +26,9 @@ static double dot(const double a[3], const double b[3]) {
  * Fonte: Iliyas Tursynbek, Almas Shintemirov (2021)
  * 
  * @param normal 
- * @param out_v1 
- * @param out_v2 
- * @param out_v3 
+ * @param out_v1 coordenadas do vetor v1 na sewquencia x, y e z
+ * @param out_v2 coordenadas do vetor v2 na sewquencia x, y e z
+ * @param out_v3 coordenadas do vetor v3 na sewquencia x, y e z 
  */
 void getVectorsFromNormal(const double normal[3], double out_v1[3], double out_v2[3], double out_v3[3]) {
     // Calcular out_v1

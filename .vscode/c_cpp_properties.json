@@ -3,19 +3,19 @@
         {
             "name": "ESP-IDF",
             "includePath": [
+                "${workspaceFolder}/**",
                 "${config:idf.espIdfPath}/components/**",
                 "${config:idf.espIdfPathWin}/components/**",
                 "${config:idf.espAdfPath}/components/**",
                 "${config:idf.espAdfPathWin}/components/**",
-                "${workspaceFolder}/**"
             ],
             "browse": {
                 "path": [
+                    "${workspaceFolder}/**",
                     "${config:idf.espIdfPath}/components",
                     "${config:idf.espIdfPathWin}/components",
                     "${config:idf.espAdfPath}/components/**",
                     "${config:idf.espAdfPathWin}/components/**",
-                    "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": false
             },

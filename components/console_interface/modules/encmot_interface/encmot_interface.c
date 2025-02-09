@@ -7,10 +7,10 @@
 
 
 
-#include "console_encmot.h"
+#include "encmot_interface.h"
 
 
-#define TAG "console_encmot"
+#define TAG "encmot_interface"
 #include "EncMot.h"
 
 void* registered_encmot_instances[MAX_ENC_MOT_INSTANCES];

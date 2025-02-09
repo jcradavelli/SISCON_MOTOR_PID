@@ -19,7 +19,9 @@
 #include <string.h>
 #include <math.h>
 
-#include "console_encmot.h"
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
+#include "console_interface.h"
+#endif
 
 
 static const char *TAG = "EncMot";
@@ -122,7 +124,9 @@ encmot_h encmot_attach (encmot_config_t config)
     memcpy(object, &aux, sizeof(aux));
 
     /* Adiciona os comandos de terminal */
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
     register_encmot_newInstance(object);
+#endif
 
     return(object);
 }

@@ -1,5 +1,5 @@
 
-set(EXTRA_COMPONENT_DIRS modules) 
+
 
 idf_component_register(
 
@@ -13,6 +13,8 @@ idf_component_register(
         console 
         driver 
         nvs_flash
+        EncMot
+        esp_driver_usb_serial_jtag
 
                   
     # diretórios de arquivos públicos    

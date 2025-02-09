@@ -13,7 +13,7 @@
 #include "esp_flash.h"
 #include "sys_common.h"
 
-static const char *TAG = "myConsole_system";
+static const char *TAG = "console_interface_system";
 
 #ifdef CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 #define WITH_TASKS_INFO 1

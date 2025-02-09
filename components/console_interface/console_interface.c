@@ -17,6 +17,12 @@
 #include "esp_flash.h"
 #include "driver/uart.h"
 
+#include "driver/uart_vfs.h"
+#include "driver/uart.h"
+
+#include "driver/usb_serial_jtag.h"
+#include "driver/usb_serial_jtag_vfs.h"
+
 
 
 /*
@@ -35,13 +41,13 @@
 #include "modules/sys_common/sys_common.c"
 #endif
 
-#ifdef CONSOLE_INTERFACE_MODULE_MEP_KINEMATICS_INTERFACE
-#include "modules/mep_kinematics/mep_kinematics.c" 
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_MEP_KINEMATICS_INTERFACE
+#include "modules/mep_interface/mep_interface.c" 
 #endif
 
 
-#ifdef CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
-#include "modules/encmot/encmot.c" 
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
+#include "modules/encmot_interface/encmot_interface.c" 
 #endif
 
 
@@ -76,17 +82,77 @@ static void initialize_nvs(void)
 
 static void initialize_console(void)
 {
-    /* Disable buffering on stdin */
-    setvbuf(stdin, NULL, _IONBF, 0);
 
+    /* Drain stdout before reconfiguring it */
+    fflush(stdout);
+    fsync(fileno(stdout));
+
+#if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
+    /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
+    uart_vfs_dev_port_set_rx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CR);
+    /* Move the caret to the beginning of the next line on '\n' */
+    uart_vfs_dev_port_set_tx_line_endings(CONFIG_ESP_CONSOLE_UART_NUM, ESP_LINE_ENDINGS_CRLF);
+
+    /* Configure UART. Note that REF_TICK is used so that the baud rate remains
+        * correct while APB frequency is changing in light sleep mode.
+        */
+    const uart_config_t uart_config = {
+            .baud_rate = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
+            .data_bits = UART_DATA_8_BITS,
+            .parity = UART_PARITY_DISABLE,
+            .stop_bits = UART_STOP_BITS_1,
+#if SOC_UART_SUPPORT_REF_TICK
+            .source_clk = UART_SCLK_REF_TICK,
+#elif SOC_UART_SUPPORT_XTAL_CLK
+            .source_clk = UART_SCLK_XTAL,
+#endif
+    };
+    /* Install UART driver for interrupt-driven reads and writes */
+    ESP_ERROR_CHECK( uart_driver_install(CONFIG_ESP_CONSOLE_UART_NUM, 256, 0, 0, NULL, 0) );
+    ESP_ERROR_CHECK( uart_param_config(CONFIG_ESP_CONSOLE_UART_NUM, &uart_config) );
+
+    /* Tell VFS to use UART driver */
+    uart_vfs_dev_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
+
+#elif defined(CONFIG_ESP_CONSOLE_USB_CDC)
     /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
     esp_vfs_dev_cdcacm_set_rx_line_endings(ESP_LINE_ENDINGS_CR);
     /* Move the caret to the beginning of the next line on '\n' */
     esp_vfs_dev_cdcacm_set_tx_line_endings(ESP_LINE_ENDINGS_CRLF);
 
-    /* Enable non-blocking mode on stdin and stdout */
+    /* Enable blocking mode on stdin and stdout */
     fcntl(fileno(stdout), F_SETFL, 0);
     fcntl(fileno(stdin), F_SETFL, 0);
+
+#elif defined(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG)
+    /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
+    usb_serial_jtag_vfs_set_rx_line_endings(ESP_LINE_ENDINGS_CR);
+    /* Move the caret to the beginning of the next line on '\n' */
+    usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_CRLF);
+
+    /* Enable blocking mode on stdin and stdout */
+    fcntl(fileno(stdout), F_SETFL, 0);
+    fcntl(fileno(stdin), F_SETFL, 0);
+
+    usb_serial_jtag_driver_config_t jtag_config = {
+        .tx_buffer_size = 256,
+        .rx_buffer_size = 256,
+    };
+
+    /* Install USB-SERIAL-JTAG driver for interrupt-driven reads and writes */
+    ESP_ERROR_CHECK( usb_serial_jtag_driver_install(&jtag_config));
+
+    /* Tell vfs to use usb-serial-jtag driver */
+    usb_serial_jtag_vfs_use_driver();
+
+#else
+#error Unsupported console type
+#endif
+
+    /* Disable buffering on stdin */
+    setvbuf(stdin, NULL, _IONBF, 0);
+
+
 
     /* Initialize the console */
     esp_console_config_t console_config = {
@@ -159,6 +225,15 @@ void vprintf_into_uart0_init ()
     };
     uart_param_config(UART_NUM_0, &uart_config);
     uart_driver_install(UART_NUM_0, BUF_SIZE * 2, 0, 0, NULL, 0);
+
+    // usb_serial_jtag_driver_config_t jtag_config = {
+    //     .tx_buffer_size = BUF_SIZE,
+    //     .rx_buffer_size = BUF_SIZE,
+    // };
+
+    // /* Install USB-SERIAL-JTAG driver for interrupt-driven reads and writes */    
+    // ESP_ERROR_CHECK( usb_serial_jtag_driver_install(&jtag_config));
+
 }
 
 int vprintf_into_uart0(const char * str, va_list argList)
@@ -166,8 +241,9 @@ int vprintf_into_uart0(const char * str, va_list argList)
     const int BUF_SIZE = 256;
     char buf[BUF_SIZE];
     int len = vsnprintf(buf, BUF_SIZE, str, argList);
-    uart_write_bytes(UART_NUM_0, (const char*)buf, len);
-    return len;
+    return uart_write_bytes(UART_NUM_0, (const char*)buf, len);
+    // return usb_serial_jtag_write_bytes((const char*)buf, len, 0);
+
 }
 
 
@@ -179,6 +255,7 @@ void create_tsk_console (const tskConsole_args_t* tskConsolArgs, UBaseType_t pri
 
     vprintf_into_uart0_init();
     esp_log_set_vprintf(vprintf_into_uart0); // Move o log do esp para o uart0, o console opera por USB
+
 
     initialize_console();
 

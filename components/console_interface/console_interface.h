@@ -29,12 +29,12 @@ extern "C" {
 #include "modules/sys_common/sys_common.h"
 #endif
 
-#ifdef CONSOLE_INTERFACE_MODULE_MEP_KINEMATICS_INTERFACE
-#include "modules/mep_kinematics/mep_kinematics.h" 
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_MEP_KINEMATICS_INTERFACE
+#include "modules/mep_interface/mep_interface.h" 
 #endif
 
-#ifdef CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
-#include "modules/encmot/encmot.h" 
+#ifdef CONFIG_CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
+#include "modules/encmot_interface/encmot_interface.h" 
 #endif
 
 typedef struct tskConsole_args_
