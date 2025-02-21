@@ -84,7 +84,7 @@ void init_screens(lv_disp_t *disp)
     scr_updating = lv_obj_create(NULL);
 
     lv_style_init(&style_small);
-    lv_style_set_text_font(&style_small, &lv_font_montserrat_10);
+    lv_style_set_text_font(&style_small, &lv_font_montserrat_10); //TODO: Add font 10
 
     label_value_kp = lv_label_create(scr_default);
     label_value_ki = lv_label_create(scr_default);
@@ -150,9 +150,8 @@ void init_screens(lv_disp_t *disp)
 void init_display ()
 {
     ESP_LOGI(TAG, "Initialize I2C bus");
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // i2c_master_bus_handle_t i2c_bus = NULL;
-    esp_lcd_i2c_bus_handle_t i2c_bus = NULL;
+
+    esp_lcd_i2c_bus_handle_t i2c_bus = {};
     i2c_config_t bus_config = {
         .mode               = I2C_MODE_MASTER,
         .sda_io_num         = EXAMPLE_PIN_NUM_SDA,          // select SDA GPIO specific to your project
@@ -164,7 +163,6 @@ void init_display ()
     };
     i2c_param_config(I2C_BUS_PORT, &bus_config);
     i2c_driver_install(I2C_BUS_PORT, I2C_MODE_MASTER, 0, 0, 0);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     ESP_LOGI(TAG, "Install panel IO");
     esp_lcd_panel_io_handle_t io_handle = NULL;
@@ -257,22 +255,23 @@ void tsk_graph (void *args)
         switch (received.type)
         {
             case DEBUG_STREAM:
-                printf(
+                ESP_LOGI(
+                    TAG,
                     "\n---------- PID controller job ----------------\n"
-                    ">measurement(x1000):\t\t%e\n"
-                    ">setpoint(x1000):\t%e\n"
-                    // ">error:\t\t%e\n"
+                    ">measurement:\t\t%e\n"
+                    ">setpoint:\t%e\n"
+                    ">error:\t\t%e\n"
                     ">kp: %e\n"
                     ">ki: %e\n"
                     ">kd: %e\n"
                     // ">proportional:\t%e\n"
                     // ">integrator:\t\t%e\n"
                     // ">differentiator:\t\t%e\n"
-                    ">out:\t\t%d\n"
+                    ">out:\t\t%e\n"
                     "\n----------------------------------------------\n",
-                    received.PID.measurement*1000,
-                    received.PID.setpoint*1000,
-                    // received.PID.error,
+                    received.PID.measurement,
+                    received.PID.setpoint,
+                    received.PID.error,
                     received.PID.Kp,
                     received.PID.Ki,
                     received.PID.Kd,
@@ -284,7 +283,7 @@ void tsk_graph (void *args)
 
                 if (count++ >= 30)
                 {
-                    lv_label_set_text_fmt(label_value_read, "read: %0.4f", received.PID.measurement);
+                    lv_label_set_text_fmt(label_value_read, "read: %0.5f", received.PID.measurement);
                     count=0;
                 }
 
@@ -300,7 +299,7 @@ void tsk_graph (void *args)
                 if (oldState == STATE_UP && state == STATE_DOW)
                 {
                     //ocorreu uma troca de derivada
-                    printf(">Period_ms: %d", period*100);
+                    ESP_LOGI(TAG,">Period_ms: %d", period*100);
                     period = 0;
                 }
 
@@ -363,7 +362,7 @@ void __update_inqueue (QueueHandle_t queue, encmotDebugStream_t *display)
     }
 }
 
-void update_newValue (QueueHandle_t queue, float value)
+void update_newValue (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_VAL;
@@ -372,7 +371,7 @@ void update_newValue (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_increment (QueueHandle_t queue, float value)
+void update_increment (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_INC;
@@ -390,7 +389,7 @@ void update_pidDebugStream (QueueHandle_t queue, PIDControllerDebugStream_t valu
     __update_inqueue(queue, &display);
 }
 
-void update_KP (QueueHandle_t queue, float value)
+void update_KP (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KP;
@@ -399,7 +398,7 @@ void update_KP (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_KI (QueueHandle_t queue, float value)
+void update_KI (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KI;
@@ -408,7 +407,7 @@ void update_KI (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_KD (QueueHandle_t queue, float value)
+void update_KD (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_KD;
@@ -417,7 +416,7 @@ void update_KD (QueueHandle_t queue, float value)
     __update_inqueue(queue, &display);
 }
 
-void update_SP (QueueHandle_t queue, float value)
+void update_SP (QueueHandle_t queue, double value)
 {
     encmotDebugStream_t display;
     display.type = USR_SP;

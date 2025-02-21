@@ -35,11 +35,11 @@ typedef struct
 	/* Derivative low-pass filter time constant */
 	double tau;
 	/* Output limits */
-	int limMin;
-	int limMax;
+	double limMin;
+	double limMax;
 	/* Integrator limits */
-	int limMinInt;
-	int limMaxInt;
+	double limMinInt;
+	double limMaxInt;
 	/* Sample time (in seconds) */
 	double T;
 	/* Controller "memory" */
@@ -49,7 +49,7 @@ typedef struct
 	double prevMeasurement;		/* Required for differentiator */
 	double oldSetpoint;
 	/* Controller output */
-	int out;
+	double out;
 } PIDController_t;
 
 
@@ -85,10 +85,10 @@ void PIDController_Init
 	double Ki,
 	double Kd,
 	double tau,
-	int limMin,
-	int limMax,
-	int limMinInt,
-	int limMaxInt,
+	double limMin,
+	double limMax,
+	double limMinInt,
+	double limMaxInt,
 	double T
 ) 
 {
@@ -169,16 +169,19 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	/*
 	* Compute output and apply limits
 	*/
-    this->out = proportional + this->integrator + this->differentiator;
-    if (this->out > this->limMax) {
-        this->out = this->limMax;
-    } else if (this->out < this->limMin) {
-        this->out = this->limMin;
-    }
+	this->out = proportional + this->integrator + this->differentiator;
+	if (this->out > this->limMax) {
+		this->out = this->limMax;
+	} else if (this->out < this->limMin) {
+		this->out = this->limMin;
+	}
+
 
 	/* Store error and measurement for later use */
     this->prevError       = error;
     this->prevMeasurement = measurement;
+
+
 
 	/* Debug */
 	if (debugOut != NULL)
@@ -210,14 +213,12 @@ void PIDController_tune_pid (PIDController_h pid, double kp, double ki, double k
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	// TODO: Check if PID is running
 	this->Kp = kp;
 	this->Ki = ki;
 	this->Kd = kd;
-
 }
 
-void PIDController_tune_pid_byTime (PIDController_h pid, double bp, double ti, double td)
+void PIDController_get_pid (PIDController_h pid, double *kp, double *ki, double *kd)
 {
 	// asserts
 	assert(pid != 0); // PID deve ser um endereço válido
@@ -225,13 +226,10 @@ void PIDController_tune_pid_byTime (PIDController_h pid, double bp, double ti, d
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	// TODO: Check if PID is running
-	this->Kp = 100/bp;
-	this->Ki = this->Kp/ti;
-	this->Kd = this->Kp/td;
-
+	*kp = this->Kp;
+	*ki = this->Ki;
+	*kd = this->Kd;
 }
-
 
 void PIDController_reset (PIDController_h pid)
 {
@@ -251,3 +249,4 @@ void PIDController_reset (PIDController_h pid)
 
 	this->out 				= 0.0f;
 }
+

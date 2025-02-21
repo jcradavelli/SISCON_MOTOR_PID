@@ -4,44 +4,16 @@
 
 
 
-void togle_setpoint (encmot_h encmot)
-{
-    float set;
 
-    static bool status = false;
+static double kp, ki, kd, setPoint;
 
-    if (status == true)
-        set = 0.0027;
-    else
-        set = -0.0010;
-
-    status = !status;
-
-    encmot_set_speed (encmot, set);
-}
-
-void stop_mottor (encmot_h encmot)
-{
-    // encmot_stop(encmot); // TODO criar função
-}
-       
-
-
-
-
-
-// static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-// static float kp=0.0, ki=0.0, kd = 0.0, setPoint = 0;
-static float kp=5000.0, ki=15000.0, kd = 50.0, setPoint = 0;
-
-static float* selected = &kp;
-static float increment = 1;
+static double* selected = &kp;
+static double increment = 1;
 
 static void tsk_input (void *args)
 {
-    encmotDebugStream_t display;
     tskInput_args_t *this;
-    float counter = 0;
+    double counter = 0;
     int counter_aux = 0;
     bool update = false;
 
@@ -51,27 +23,42 @@ static void tsk_input (void *args)
     bool butonsClear = false;
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    encmot_set_speed (this->encmot, setPoint);
-    encmot_tune_pid(this->encmot,kp,ki,kd);
+    encmot_get_setpoint(this->encmot, &setPoint, NULL);
+    encmot_get_pid(this->encmot, &kp, &ki, &kd);
 
-
-    printf(">Selected: kp|t\r\n");
-    printf(">UsrEncoder: %4.4f\r\n", counter);
-    printf(">Increment: %4.4f|t\r\n", increment);
+    ESP_LOGI(TAG,">Selected: kp|t\r\n");
+    ESP_LOGI(TAG,">UsrEncoder: %4.4f\r\n", counter);
+    ESP_LOGI(TAG,">Increment: %4.4f|t\r\n", increment);
 
     update_KP(this->logQueue, kp);  
     update_KI(this->logQueue, ki);  
     update_KD(this->logQueue, kd);  
     update_SP(this->logQueue, setPoint);  
 
+
     while (1)
     {
-        // Update telemetry values
+        // Atualiza o setpoint
+        double newSP;
+        encmot_get_setpoint(this->encmot, &newSP, NULL);
+        if (newSP != setPoint) update_SP(this->logQueue, newSP); 
+        setPoint = newSP;
+        
+        // Atualiza os ganhos
+        double newkp, newki, newkd;
+        encmot_get_pid(this->encmot, &newkp, &newki, &newkd);
+        if (newkp != kp) update_KP(this->logQueue, newkp);  
+        if (newki != ki) update_KI(this->logQueue, newki);  
+        if (newkd != kd) update_KD(this->logQueue, newkd);
+        newkp = kp; newki = ki; newkd = kd;
+
+
+        // Atualiza os valores de entrada do usuário
         if (update == true)
         {
             update = false;
-            printf(">UsrEncoder: %4.4f\r\n", counter);
-            printf(">Increment: %4.4f|t\r\n", increment);
+            ESP_LOGI(TAG,">UsrEncoder: %4.4f\r\n", counter);
+            ESP_LOGI(TAG,">Increment: %4.4f|t\r\n", increment);
 
             update_increment(this->logQueue, increment);
             update_newValue(this->logQueue, counter);
@@ -92,7 +79,6 @@ static void tsk_input (void *args)
 
         if (butonsClear == true)
         {
-
 
             if (!gpio_get_level(BUTTON_1))
             {
@@ -151,25 +137,25 @@ static void tsk_input (void *args)
 
                 if (selected == &setPoint) 
                 {
-                    printf(">Selected: kp|t\r\n");
+                    ESP_LOGI(TAG,">Selected: kp|t\r\n");
                     selected = &kp;
                     update_SEL(this->logQueue, "kp");
                 }
                 else if (selected == &kp)
                 {
-                    printf(">Selected: ki|t\r\n");
+                    ESP_LOGI(TAG,">Selected: ki|t\r\n");
                     selected = &ki;
                     update_SEL(this->logQueue, "ki");
                 } 
                 else if (selected == &ki) 
                 {
-                    printf(">Selected: kd|t\r\n");
+                    ESP_LOGI(TAG,">Selected: kd|t\r\n");
                     selected = &kd;
                     update_SEL(this->logQueue, "kd");
                 }
                 else if (selected == &kd) 
                 {
-                    printf(">Selected: setPoint|t\r\n");
+                    ESP_LOGI(TAG,">Selected: setPoint|t\r\n");
                     selected = &setPoint;
                     update_SEL(this->logQueue, "setPoint");
                 }
@@ -183,9 +169,6 @@ static void tsk_input (void *args)
         else if (gpio_get_level(BUTTON_1) && gpio_get_level(BUTTON_2) && gpio_get_level(BUTTON_3) && gpio_get_level(BUTTON_4))
         {
             butonsClear = true;
-            // encmot_tune_pid(this->encmot,kp,ki,kd); // TODO: Ajustar PID
-            // ESP_LOGD(TAG,"GANHOS-------------------\n>kp:%e\n>ki:%e\n>kd:%e\n------------------",kp,ki,kd);
-
         }
     }
 }
@@ -204,9 +187,7 @@ void create_tsk_input (tskInput_args_t* tskInputArgs, UBaseType_t prioridade ,co
         .watchpoint_superior                =   0,
         .example_pcnt_on_reach              =   NULL,
         .example_pcnt_on_reach_user_data    =   NULL,
-        .gear_ratio_numerator               =   1,
-        .gear_ration_denominator            =   1,
     };
     tskInputArgs->encoder = encoder_attach(config);
-    xTaskCreatePinnedToCore(tsk_input, "input", /* Stack Size = */ 2048 , tskInputArgs, prioridade, NULL, xCoreID);
+    xTaskCreatePinnedToCore(tsk_input, "input", /* Stack Size = */ 10*2048 , tskInputArgs, prioridade, NULL, xCoreID);
 }

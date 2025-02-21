@@ -2,9 +2,9 @@
   "C_Cpp.intelliSenseEngine": "default",
   "idf.adapterTargetName": "esp32",
   "idf.openOcdConfigs": [
-    "board/esp32-bridge.cfg"
+    "board/esp32s3-builtin.cfg"
   ],
-  "idf.portWin": "COM28",
+  "idf.portWin": "COM3",
   "idf.flashType": "UART",
   "files.associations": {
     "uart.h": "c",
@@ -39,7 +39,43 @@
     "i2c.h": "c",
     "lv_draw.h": "c",
     "random": "c",
-    "motor.h": "c"
+    "motor.h": "c",
+    "motor_servo_24h55m020": "cpp",
+    "task_graph.h": "c",
+    "gpio_num.h": "c",
+    "linenoise.h": "c",
+    "argtable3.h": "c",
+    "esp_console.h": "c",
+    "string.h": "c",
+    "esp_flash.h": "c",
+    "fcntl.h": "c",
+    "console_encmot.h": "c",
+    "reset_reasons.h": "c",
+    "esp_rom_sys.h": "c",
+    "system_internal.h": "c",
+    "numbers": "c",
+    "cmath": "c",
+    "numeric": "c",
+    "ratio": "c",
+    "*.tcc": "c",
+    "cinttypes": "c",
+    "netfwd": "c",
+    "mep_cinematics.h": "c",
+    "functional": "c",
+    "console_interface.h": "c",
+    "stdlib.h": "c",
+    "array": "c",
+    "deque": "c",
+    "list": "c",
+    "string": "c",
+    "unordered_map": "c",
+    "vector": "c",
+    "string_view": "c",
+    "initializer_list": "c",
+    "span": "c",
+    "mep_interface.h": "c",
+    "encmot_interface.h": "c",
+    "esp_system.h": "c"
   },
   "C_Cpp.default.compilerPath": "${env:IDF_TOOLS_PATH}\\tools\\xtensa-esp32-elf\\esp-12.2.0_20230208\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
   "C_Cpp.files.exclude": {
@@ -50,5 +86,15 @@
 
   "terminal.integrated.env.windows": {
     "PATH": "C:\\MinGW\\bin;C:\\CMake\\bin;${env:PATH}"
-  }
+  },
+  "idf.espIdfPathWin": "C:\\Users\\jcrad\\esp\\v5.3\\esp-idf",
+  "idf.pythonBinPathWin": "C:\\Users\\jcrad\\.espressif\\python_env\\idf5.2_py3.11_env\\Scripts\\python.exe",
+  "idf.toolsPathWin": "C:\\Users\\jcrad\\.espressif",
+  "idf.customExtraPaths": "C:\\Users\\jcrad\\.espressif\\tools\\xtensa-esp-elf-gdb\\14.2_20240403\\xtensa-esp-elf-gdb\\bin;C:\\Users\\jcrad\\.espressif\\tools\\riscv32-esp-elf-gdb\\14.2_20240403\\riscv32-esp-elf-gdb\\bin;C:\\Users\\jcrad\\.espressif\\tools\\xtensa-esp-elf\\esp-13.2.0_20230928\\xtensa-esp-elf\\bin;C:\\Users\\jcrad\\.espressif\\tools\\riscv32-esp-elf\\esp-13.2.0_20230928\\riscv32-esp-elf\\bin;C:\\Users\\jcrad\\.espressif\\tools\\esp32ulp-elf\\2.35_20220830\\esp32ulp-elf\\bin;C:\\Users\\jcrad\\.espressif\\tools\\cmake\\3.24.0\\bin;C:\\Users\\jcrad\\.espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20240318\\openocd-esp32\\bin;C:\\Users\\jcrad\\.espressif\\tools\\ninja\\1.11.1;C:\\Users\\jcrad\\.espressif\\tools\\idf-exe\\1.0.3;C:\\Users\\jcrad\\.espressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;C:\\Users\\jcrad\\.espressif\\tools\\dfu-util\\0.11\\dfu-util-0.11-win64;C:\\Users\\jcrad\\.espressif\\tools\\esp-rom-elfs\\20230320",
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "C:\\Users\\jcrad\\.espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+    "IDF_CCACHE_ENABLE": "1",
+    "ESP_ROM_ELF_DIR": "C:\\Users\\jcrad\\.espressif\\tools\\esp-rom-elfs\\20230320/"
+  },
+  "idf.gitPathWin": "C:\\Users\\jcrad\\.espressif\\tools\\idf-git\\2.39.2\\cmd\\git.exe"
 }

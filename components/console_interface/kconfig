@@ -1,0 +1,46 @@
+menu "console_interface"
+
+    config CONSOLE_INTERFACE_MODULE_SYS_COMMON
+        bool "adiciona o módulo de comandos gerais de sistema"
+        default y
+        help
+            Se habilitado (default), adiciona o módulo de comandos gerais de sistema.
+             
+              free
+                Get the current size of free heap memory
+              
+              heap
+                Get minimum size of free heap memory that was available during program
+                execution
+              
+              version
+                Get version of chip and SDK
+              
+              restart
+                Software reset of the chip
+              
+              tasks
+                Get information about running tasks
+                essa função é habilitada se CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS é defiido
+              
+              log_level  <tag|*> <none|error|warn|info|debug|verbose>
+                Set log level for all tags or a specific tag.
+                     <tag|*>  Log tag to set the level for, or * to set for all tags
+                <none|error|warn|info|debug|verbose>  Log level to set. Abbreviated words are accepted.
+    
+    config CONSOLE_INTERFACE_MODULE_MEP_KINEMATICS_INTERFACE
+      bool "adiciona o módulo de comandos para MEPs"
+      default n
+      help
+          Se habilitado, adiciona a interface de controle de MEP.
+                       
+
+    config CONSOLE_INTERFACE_MODULE_ENCMOT_INTERFACE
+      bool "adiciona o módulo de comandos para motores"
+      default n
+      help
+          Se habilitado, adiciona inteface de controle diretor de motores.
+        
+
+
+endmenu

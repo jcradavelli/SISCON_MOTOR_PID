@@ -27,6 +27,6 @@ static void tsk_encmot (void *args)
 
 void create_tsk_encmot (tskEncmot_args_t* tskInputArgs, UBaseType_t prioridade ,const BaseType_t xCoreID)
 {
-    xTaskCreatePinnedToCore(tsk_encmot, "input", /* Stack Size = */ 2048 , tskInputArgs, prioridade, NULL, xCoreID);
+    xTaskCreatePinnedToCore(tsk_encmot, "encmot", /* Stack Size = */ 4*2048 , tskInputArgs, prioridade, NULL, xCoreID);
 
 }

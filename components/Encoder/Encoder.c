@@ -25,10 +25,12 @@ typedef struct encoder_{
     pcnt_unit_handle_t      pcnt_unit;
     pcnt_channel_handle_t   pcnt_chan_a;
     pcnt_channel_handle_t   pcnt_chan_b;
-    int gear_ratio_numerator;               //!< numerador da fração ratio (PULSOS/voltas)
-    int gear_ration_denominator;            //!< Denominador da fração ration (pulsos/VOLTAS)
+    // int gear_ratio_numerator;               //!< numerador da fração ratio (PULSOS/voltas)
+    // int gear_ration_denominator;            //!< Denominador da fração ration (pulsos/VOLTAS)
     int running_counter;
     encoder_sample_t last_sample;
+
+    double encoderGain;                         //!< Ganho que converte a contagem de pulsos em deslocamento (radianos)
 }encoder_t;
 
 static encoder_t __encoder_attach 
@@ -43,8 +45,9 @@ static encoder_t __encoder_attach
     int watchpoint_superior,
     pcnt_event_on_reach_callback_h example_pcnt_on_reach,
     void *example_pcnt_on_reach_user_data,
-    int gear_ratio_numerator,           //!< numerador da fração ratio (VOLTAS/pulsos)
-    int gear_ration_denominator    //!< Denominador da fração ration (voltas/PULSOS)
+    int pulses_per_revolution
+    // int gear_ratio_numerator,           //!< numerador da fração ratio (VOLTAS/pulsos)
+    // int gear_ration_denominator    //!< Denominador da fração ration (voltas/PULSOS)
 )
 {
     encoder_t retval = {0};
@@ -115,8 +118,13 @@ static encoder_t __encoder_attach
     retval.pcnt_chan_a = pcnt_chan_a;
     retval.pcnt_chan_b = pcnt_chan_b;
 
-    retval.gear_ratio_numerator = gear_ratio_numerator;
-    retval.gear_ration_denominator = gear_ration_denominator;
+    if (pulses_per_revolution < 0)
+        retval.encoderGain = 1;
+    else
+        retval.encoderGain = pulses_per_revolution*M_PI/180.0;
+
+    // retval.gear_ratio_numerator = gear_ratio_numerator;
+    // retval.gear_ration_denominator = gear_ration_denominator;
 
     return(retval);
 }
@@ -148,8 +156,9 @@ encoder_h encoder_attach (encoder_config_t config)
         config.watchpoint_superior,
         config.example_pcnt_on_reach,
         config.example_pcnt_on_reach_user_data,
-        config.gear_ratio_numerator,
-        config.gear_ration_denominator
+        config.pulses_per_revolution
+        // config.gear_ratio_numerator,
+        // config.gear_ration_denominator
     );
     memcpy(object, &aux, sizeof(aux));
 
@@ -175,10 +184,10 @@ void encoder_clear_encoderCount (encoder_h handler)
     ESP_ERROR_CHECK(pcnt_unit_clear_count(object->pcnt_unit));
 }
 
-// static float __encoder_get_turns (encoder_h handler)
+// static double __encoder_get_turns (encoder_h handler)
 // {
 //     encoder_t *object = handler;
-//     float value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = encoder_get_enconderCount_raw(handler);
@@ -189,9 +198,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// float encoder_get_encoderPosition_grad(encoder_h handler)
+// double encoder_get_encoderPosition_grad(encoder_h handler)
 // {
-//     float value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = __encoder_get_turns(handler) * 360;
@@ -199,9 +208,9 @@ void encoder_clear_encoderCount (encoder_h handler)
 //     return(value);
 // }
 
-// float encoder_get_encoderPosition_rad(encoder_h handler)
+// double encoder_get_encoderPosition_rad(encoder_h handler)
 // {
-//     float value;
+//     double value;
 
 //     assert(handler!=NULL);
 //     value = (__encoder_get_turns(handler) * 2 )/ M_PI;
@@ -213,10 +222,10 @@ void encoder_job (encoder_h handler)
 {
     encoder_t *object = handler;
     static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;
-    int count;
-    float speed=0;
-    float acele;
-    float jerk;
+    double count;
+    double speed=0;
+    double acele;
+    double jerk;
     int64_t time;
     int dtime;
 
@@ -231,42 +240,43 @@ void encoder_job (encoder_h handler)
 
 
     // Calcula as derivadas
-    dtime = time - object->last_sample.time;
-    ESP_LOGE(TAG,"\n>debug:%d\r\n",(count - object->last_sample.count));
+    dtime = (time - object->last_sample.time);
+    ESP_LOGE(TAG,"\n>debug:%f\r\n",(count - object->last_sample.count));
     ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
-    if (abs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
+    if (fabs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
     {
-        ESP_LOGE(TAG,"\n>count:%d\r\n",count);
-        ESP_LOGE(TAG,"\n>object->last_sample.count:%d\r\n",object->last_sample.count);
+        ESP_LOGE(TAG,"\n>count:%f\r\n",count);
+        ESP_LOGE(TAG,"\n>object->last_sample.count:%f\r\n",object->last_sample.count);
         ESP_LOGE(TAG,"\n>SHRT_MIN:%d\r\n",SHRT_MIN);
         ESP_LOGE(TAG,"\n>SHRT_MAX:%d\r\n",SHRT_MAX);
 
         if (count > object->last_sample.count) // overflow?
         {
             object->last_sample.count += SHRT_MAX;
-            speed = (float)(count - object->last_sample.count)/(dtime);
+            speed = (double)(count - object->last_sample.count)/(dtime);
         }
         else //underflow!
         {
             object->last_sample.count += SHRT_MIN; //ok
-            speed = (float)(count - object->last_sample.count)/(dtime);
+            speed = (double)(count - object->last_sample.count)/(dtime);
         }
-        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
+        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
     }
     else
     {
-        ESP_LOGE(TAG,"\n>considerado:%d\r\n",(count - object->last_sample.count));
-        speed = (float)(count - object->last_sample.count)/(dtime);
+        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
+        speed = (double)(count - object->last_sample.count)/(dtime);
     }
     acele = (speed - object->last_sample.speed)/(dtime);
     jerk  = (acele - object->last_sample.acele)/(dtime);
+    speed = speed * 15707.96327;
 
     // Debug dos dados de encoder
-    ESP_LOGD(TAG,"\n>time:%d us\r\n",dtime);
-    ESP_LOGD(TAG,"\n>count:%d\r\n",count);
-    ESP_LOGD(TAG,"\n>Speed:%0.20e count/us\r\n",speed);
-    ESP_LOGD(TAG,"\n>acele:%0.20e count/us²\r\n",acele);
-    ESP_LOGD(TAG,"\n>jerk:%0.20e count/us³\r\n",jerk);
+    ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
+    ESP_LOGI(TAG,"\n>count:%f \r\n",count);
+    ESP_LOGI(TAG,"\n>Encoder Speed (rad/s):%0.20f\r\n",speed);
+    ESP_LOGI(TAG,"\n>acele (rad/s²):%0.20f \r\n",acele);
+    ESP_LOGI(TAG,"\n>jerk (rad/s³):%0.20f \r\n",jerk);
 
     // Atualiza os valores
     object->last_sample.time    = time;
