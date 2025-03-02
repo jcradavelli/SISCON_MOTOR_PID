@@ -31,7 +31,8 @@
 #include "mep.h"
 #include "console_interface.h"
 
-
+#include "esp_system.h"
+#include "esp_log.h"
 
 
 
@@ -155,7 +156,7 @@ void app_main(void)
     create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
-    //esp_log_level_set("*",                  ESP_LOG_NONE);
+    esp_log_level_set("*",                  ESP_LOG_NONE);
 
 
 
@@ -204,7 +205,7 @@ void app_main(void)
     ESP_LOG_ERROR
     ESP_LOG_NONE
     */
-    //esp_log_level_set("*",                  ESP_LOG_NONE);
+    // esp_log_level_set("*",                  ESP_LOG_NONE);
     // esp_log_level_set("EncMot",             ESP_LOG_INFO);
     // esp_log_level_set("Seting_Speed",       ESP_LOG_INFO);
     // esp_log_level_set("motor_24H55M020",    ESP_LOG_INFO);

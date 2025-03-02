@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include "sdkconfig.h"
 
 
@@ -147,7 +148,12 @@ static void mep_task(mep_h instance)
 
     encmotDebugStream_t encmotStream;
 
-    int log_motor = -1; // seliciona o log de motor a ser exibido
+    const char *TAGS[] = {
+        "ENCMOT_0",
+        "ENCMOT_1",
+        "ENCMOT_2",
+    };
+    
 
 
     while(true)
@@ -159,11 +165,34 @@ static void mep_task(mep_h instance)
         {
             encmot_job (this->encmot[i], &encmotStream);
 
-            if (i == log_motor)
-            {
-                if (xQueueSend(this->LogQueue, &encmotStream, 0) != pdPASS)
-                    ESP_LOGE(TAG, "LogQueue FULL!");
-            }
+            // Stream de dados do PID para exibição 
+            //      - formatado para uso com a extensão Teleplot
+            // Para habilitar os logs, usa-se o comando log_level do terminal
+            //      ou a função set_log_level da esp-idf
+            ESP_LOGI(TAGS[i],
+                "\n---------- PID controller job ----------------\n"
+                ">measurement:\t\t%e\n"
+                ">setpoint:\t%e\n"
+                ">error:\t\t%e\n"
+                ">kp: %e\n"
+                ">ki: %e\n"
+                ">kd: %e\n"
+                // ">proportional:\t%e\n"
+                // ">integrator:\t\t%e\n"
+                // ">differentiator:\t\t%e\n"
+                ">out:\t\t%e\n"
+                "\n----------------------------------------------\n",
+                encmotStream.PID.measurement,
+                encmotStream.PID.setpoint,
+                encmotStream.PID.error,
+                encmotStream.PID.Kp,
+                encmotStream.PID.Ki,
+                encmotStream.PID.Kd,
+                // encmotStream.PID.proportional,
+                // encmotStream.PID.integrator,
+                // encmotStream.PID.differentiator,
+                encmotStream.PID.out
+            );
         }
     }
 }

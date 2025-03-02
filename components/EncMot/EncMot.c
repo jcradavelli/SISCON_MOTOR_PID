@@ -196,6 +196,7 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
     {
         case CONTMODE_OPEN_LOOP:
             controller_output = __contmode_openloop(handler);
+            memset(PIDStream, 0, sizeof(PIDControllerDebugStream_t));
             break;
 
         case CONTMODE_PID_SPEED:
