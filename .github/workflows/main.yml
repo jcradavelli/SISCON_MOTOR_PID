@@ -23,8 +23,8 @@ jobs:
     - name: esp-idf build
       uses: espressif/esp-idf-ci-action@v1
       with:
-        esp_idf_version: v5.1
-        target: esp32
+        esp_idf_version: v5.3
+        target: esp32s3
         path: './project'
         
     - name: Archive code coverage results
