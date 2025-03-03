@@ -22,7 +22,7 @@ menu "mep - manipulador esferico paralelo"
         
         config MEP_SERVO_24H55M020_MAX_GLITCH_NS                  
             int "Tempo de de filtro de glitch, pulsos menores serão ignorados"
-            default 10
+            default 10000
     
         config MEP_SERVO_24H55M020_PULSES_PER_REVOLUTION          
             int "Numero de pulsos por volta"
