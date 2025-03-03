@@ -211,7 +211,7 @@ mep_h mep_init(QueueHandle_t LogQueue)
         this->encmot[i] = encmot_attach(encmot_config[i]);
     }
 
-    xTaskCreate(mep_task, "mep_task", /* Stack Size = */ 4*2048 , this, configMAX_PRIORITIES/2+1, NULL);
+    xTaskCreate(mep_task, "mep_task", /* Stack Size = */ 4*2048 , this, 2*configMAX_PRIORITIES/3, NULL);
 
 
 
@@ -236,6 +236,9 @@ void mep_setPosition_byNormal (mep_h instance, const double normal[3])
 
 
     getVectorsFromNormal(normal, out_v1, out_v2, out_v3);
+    printf("out_v1: %f %f %f\n", out_v1[0], out_v1[1], out_v1[2]);
+    printf("out_v2: %f %f %f\n", out_v2[0], out_v2[1], out_v2[2]);
+    printf("out_v3: %f %f %f\n", out_v3[0], out_v3[1], out_v3[2]);
 
     Vx[0] = out_v1[0];
     Vx[1] = out_v2[0];
@@ -250,8 +253,9 @@ void mep_setPosition_byNormal (mep_h instance, const double normal[3])
     Vz[2] = out_v3[2];
 
     getAnglesFromVectors(mep_parameters, theta, Vx, Vy, Vz);
+    printf("theta: %f %f %f\n", theta[0], theta[1], theta[2]);
 
-    encmot_set_position(this->encmot[0], theta[0]);
-    encmot_set_position(this->encmot[1], theta[1]);
-    encmot_set_position(this->encmot[2], theta[2]);
+    encmot_set_position(this->encmot[0], theta[0]*33.0/17.0);
+    encmot_set_position(this->encmot[1], theta[1]*33.0/17.0);
+    encmot_set_position(this->encmot[2], theta[2]*33.0/17.0);
 }

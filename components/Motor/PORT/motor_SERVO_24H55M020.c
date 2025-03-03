@@ -220,6 +220,7 @@ void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
         ESP_LOGW(TAG, "Velocidade configurada (%0.2f) excede à velocidade minima (%0.4f)", speed, (double)FREQ_MIN);
         freq_hz = FREQ_MIN;
         //TODO: Parar o motor!
+        
         ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
         ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,0));
 

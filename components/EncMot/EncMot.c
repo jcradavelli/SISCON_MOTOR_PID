@@ -44,7 +44,7 @@ static const char *TAG_ACTION_SET_POSITION = "Seting_Position";
 
 
 #define SPEED_CONSTANT          (1.0/314.15)
-#define POSITION_CONSTANT       (M_PI/200.0)
+#define POSITION_CONSTANT       (1)//(M_PI/200.0)
 
 
 
