@@ -149,9 +149,9 @@ static void mep_task(mep_h instance)
     encmotDebugStream_t encmotStream;
 
     const char *TAGS[] = {
-        "ENCMOT_0",
-        "ENCMOT_1",
-        "ENCMOT_2",
+        "CH1",
+        "CH2",
+        "CH3",
     };
     
 
@@ -170,28 +170,26 @@ static void mep_task(mep_h instance)
             // Para habilitar os logs, usa-se o comando log_level do terminal
             //      ou a função set_log_level da esp-idf
             ESP_LOGI(TAGS[i],
-                "\n---------- PID controller job ----------------\n"
-                ">measurement:\t\t%e\n"
-                ">setpoint:\t%e\n"
-                ">error:\t\t%e\n"
-                ">kp: %e\n"
-                ">ki: %e\n"
-                ">kd: %e\n"
-                // ">proportional:\t%e\n"
-                // ">integrator:\t\t%e\n"
-                // ">differentiator:\t\t%e\n"
-                ">out:\t\t%e\n"
-                "\n----------------------------------------------\n",
-                encmotStream.PID.measurement,
-                encmotStream.PID.setpoint,
-                encmotStream.PID.error,
-                encmotStream.PID.Kp,
-                encmotStream.PID.Ki,
-                encmotStream.PID.Kd,
-                // encmotStream.PID.proportional,
-                // encmotStream.PID.integrator,
-                // encmotStream.PID.differentiator,
-                encmotStream.PID.out
+                ">CH%d_measurement:\t\t%e\n"
+                ">CH%d_setpoint:\t%e\n"
+                ">CH%d_error:\t\t%e\n"
+                ">CH%d_kp: %e\n"
+                ">CH%d_ki: %e\n"
+                ">CH%d_kd: %e\n"
+                // ">CH%d_proportional:\t%e\n"
+                // ">CH%d_integrator:\t\t%e\n"
+                // ">CH%d_differentiator:\t\t%e\n"
+                ">CH%d_out:\t\t%e\n",
+                i, encmotStream.PID.measurement,
+                i, encmotStream.PID.setpoint,
+                i, encmotStream.PID.error,
+                i, encmotStream.PID.Kp,
+                i, encmotStream.PID.Ki,
+                i, encmotStream.PID.Kd,
+                // i, encmotStream.PID.proportional,
+                // i, encmotStream.PID.integrator,
+                // i, encmotStream.PID.differentiator,
+                i, encmotStream.PID.out
             );
         }
     }
