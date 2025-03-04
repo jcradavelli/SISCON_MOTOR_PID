@@ -17,6 +17,10 @@
 #include <string.h>
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif  
+
 static const char *TAG = "encoder";
 
 
@@ -226,6 +230,7 @@ void encoder_job (encoder_h handler)
     double speed=0;
     double acele;
     double jerk;
+    double angle;
     int64_t time;
     int dtime;
 
@@ -270,6 +275,8 @@ void encoder_job (encoder_h handler)
     acele = (speed - object->last_sample.speed)/(dtime);
     jerk  = (acele - object->last_sample.acele)/(dtime);
     speed = speed * 15707.96327;
+    angle = count * (360.0*M_PI*17)/(400.0*180*33);
+
 
     // Debug dos dados de encoder
     ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
@@ -283,6 +290,7 @@ void encoder_job (encoder_h handler)
     object->last_sample.count   = count;
     object->last_sample.speed   = speed;
     object->last_sample.acele   = acele;
+    object->last_sample.angle   = angle;
     object->running_counter++;
 }
 

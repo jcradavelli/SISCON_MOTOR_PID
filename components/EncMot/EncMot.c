@@ -44,8 +44,6 @@ static const char *TAG_ACTION_SET_POSITION = "Seting_Position";
 
 
 #define SPEED_CONSTANT          (1.0/314.15)
-#define POSITION_CONSTANT       (1)//(M_PI/200.0)
-
 
 
 
@@ -161,7 +159,7 @@ static double __contmode_pid_position (encmot_h handler, encoder_sample_t encode
     double pid_out;
 
     /* Coloca os dados de saída do encoder, na entrada do PID  */
-    object->pid_measure = encoder_sample.count * POSITION_CONSTANT;
+    object->pid_measure = encoder_sample.angle;
 
     /* Roda a subrotina de controle */
     pid_out = PIDController_Update(object->PIDcontroller, object->setpoint, object->pid_measure, debugOut);
@@ -276,7 +274,7 @@ void encmot_set_position (encmot_h handler, double setpoint)
     }
 
     // TODO: Normalizar a posicao para radianos
-    object->setpoint = setpoint * POSITION_CONSTANT;
+    object->setpoint = setpoint;
 
     ESP_LOGI(ACTION,"Done!");
 }
@@ -285,7 +283,7 @@ void encmot_read_position (encmot_h handler, double *position)
 {
     encmot_t *object = handler;
     assert(handler!=NULL);
-    *position = encoder_get_lastSample(object->encoder).count * POSITION_CONSTANT;
+    *position = encoder_get_lastSample(object->encoder).angle;
 }
 
 void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd)
