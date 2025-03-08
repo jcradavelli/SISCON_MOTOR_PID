@@ -49,16 +49,16 @@ void getVectorsFromNormal(const double normal[3], double out_v1[3], double out_v
     cross(normal, out_v1, cross_product);
 
     // Calcular out_v2
-    angle = 2 * M_PI / 3;
+    angle = 4 * M_PI / 3;
     vx = out_v1[0] * cos(angle) + cross_product[0] * sin(angle) + normal[0] * dot(normal, out_v1) * (1 - cos(angle));
     vy = out_v1[1] * cos(angle) + cross_product[1] * sin(angle) + normal[1] * dot(normal, out_v1) * (1 - cos(angle));
     vz = out_v1[2] * cos(angle) + cross_product[2] * sin(angle) + normal[2] * dot(normal, out_v1) * (1 - cos(angle));
     out_v2[0] = vx;
     out_v2[1] = vy;
     out_v2[2] = vz;
-
+    
     // Calcular out_v3
-    angle = 4 * M_PI / 3;
+    angle = 2 * M_PI / 3;
     vx = out_v1[0] * cos(angle) + cross_product[0] * sin(angle) + normal[0] * dot(normal, out_v1) * (1 - cos(angle));
     vy = out_v1[1] * cos(angle) + cross_product[1] * sin(angle) + normal[1] * dot(normal, out_v1) * (1 - cos(angle));
     vz = out_v1[2] * cos(angle) + cross_product[2] * sin(angle) + normal[2] * dot(normal, out_v1) * (1 - cos(angle));

@@ -26,5 +26,5 @@
 #define ESP_LOGE(TAG, FORMAT, ... ) (printf(LOG_COLOR_E"E (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))
 #define ESP_LOGW(TAG, FORMAT, ... ) (printf(LOG_COLOR_W"W (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))
 #define ESP_LOGI(TAG, FORMAT, ... ) (printf(LOG_COLOR_I"I (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))
-#define ESP_LOGD(TAG, FORMAT, ... ) //(printf(LOG_COLOR_D"D (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))
+#define ESP_LOGD(TAG, FORMAT, ... ) (printf(LOG_COLOR_D"D (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))
 #define ESP_LOGV(TAG, FORMAT, ... ) (printf(LOG_COLOR_V"V (%lld) %s: " FORMAT "\n\r" LOG_RESET_COLOR, (long long int)time(0), TAG, ##__VA_ARGS__))

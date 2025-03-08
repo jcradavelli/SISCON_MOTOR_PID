@@ -24,7 +24,7 @@ extern "C" {
 
 
 typedef struct console_interface_mep_{
-    void (*setNormal) (void* handler, const double normal[3]);
+    void (*setNormal) (void* handler, const double azimuth, const double polar);
 
     void* handler; //<! Contexto do objeto mep
 }console_interface_mep_t;

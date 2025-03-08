@@ -218,10 +218,11 @@ mep_h mep_init(QueueHandle_t LogQueue)
 }
 
 
-void mep_setPosition_byNormal (mep_h instance, const double normal[3])
+void mep_setPosition_byNormal (mep_h instance, const double azimuth, const double polar)
 {
     assert(instance != NULL);
     mep_t *this = instance;
+    double normal[3];
 
     double out_v1[3], out_v2[3], out_v3[3];// intermediate values
     double Vx[3], Vy[3], Vz[3];
@@ -229,8 +230,14 @@ void mep_setPosition_byNormal (mep_h instance, const double normal[3])
     mep_cinematics_t mep_parameters = {
         .alpha = {DEG_TO_RAD(45), DEG_TO_RAD(90)},
         .gamma = DEG_TO_RAD(0),
-        .mounting_mode = MEP_CINEMATICS_MODE_RRR
+        .mounting_mode = MEP_CINEMATICS_MODE_LLL
     };
+
+    // Obtém o vetor normal a partir do azimute e polar
+    // n = [sin(azimute)*sin(polar); cos(azimute)*sin(polar); cos(polar)];
+    normal[0] = sin(azimuth) * sin(polar);
+    normal[1] = cos(azimuth) * sin(polar);
+    normal[2] = cos(polar);
 
 
     getVectorsFromNormal(normal, out_v1, out_v2, out_v3);
@@ -246,14 +253,14 @@ void mep_setPosition_byNormal (mep_h instance, const double normal[3])
     Vy[1] = out_v2[1];
     Vy[2] = out_v3[1];
 
-    Vz[0] = out_v3[2];
-    Vz[1] = out_v3[2];
+    Vz[0] = out_v1[2];
+    Vz[1] = out_v2[2];
     Vz[2] = out_v3[2];
 
     getAnglesFromVectors(mep_parameters, theta, Vx, Vy, Vz);
     printf("theta: %f %f %f\n", theta[0], theta[1], theta[2]);
 
-    encmot_set_position(this->encmot[0], theta[0]*33.0/17.0);
-    encmot_set_position(this->encmot[1], theta[1]*33.0/17.0);
-    encmot_set_position(this->encmot[2], theta[2]*33.0/17.0);
+    encmot_set_position(this->encmot[0], theta[0]);
+    encmot_set_position(this->encmot[1], theta[1]);
+    encmot_set_position(this->encmot[2], theta[2]);
 }

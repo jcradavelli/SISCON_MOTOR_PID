@@ -245,6 +245,13 @@ int main(char* argc, char** argv)
             .v2_esperado = {0.1470, -0.8317, -0.5360},
             .v3_esperado = {0.7497, 0.3890, 0.5360}
         },
+        {
+            .test_title = "Teste normal com 15 graus polar e 0 graus azimute",
+            .normal = {0, 0.2588, 0.9659},
+            .v1_esperado = {1.0000, 0.0000, 0.0000},
+            .v2_esperado = {-0.5000, 0.8365, -0.2241},
+            .v3_esperado = {-0.5000, -0.8365, 0.2241}
+        },
         // Adicione mais testes aqui...
     };
 
@@ -258,7 +265,31 @@ int main(char* argc, char** argv)
 
         if (result) 
         {
-            ESP_LOGI(TAG, "TESTE %d result SUCESS", testCounter);
+            
+            mep_cinematics_t model = {
+                .alpha          = {DEG_TO_RAD(45), DEG_TO_RAD(90)},
+                .gamma          = DEG_TO_RAD(0),
+                .mounting_mode  = MEP_CINEMATICS_MODE_LLL,
+            };
+            double theta[3];
+
+            double Vx[3], Vy[3], Vz[3];
+
+            Vx[0] = testes[i].v1_esperado[0];
+            Vx[1] = testes[i].v2_esperado[0];
+            Vx[2] = testes[i].v3_esperado[0];
+        
+            Vy[0] = testes[i].v1_esperado[1];
+            Vy[1] = testes[i].v2_esperado[1];
+            Vy[2] = testes[i].v3_esperado[1];
+        
+            Vz[0] = testes[i].v1_esperado[2];
+            Vz[1] = testes[i].v2_esperado[2];
+            Vz[2] = testes[i].v3_esperado[2];
+            
+            getAnglesFromVectors(model, theta, Vx, Vy, Vz);
+            
+            ESP_LOGI(TAG, "TESTE %d result SUCESS [theta = %0.5f, %0.5f, %0.5f]", testCounter, theta[0], theta[1], theta[2]);
         }  
         else
         {
