@@ -218,7 +218,7 @@ mep_h mep_init(QueueHandle_t LogQueue)
 }
 
 
-void mep_setPosition_byNormal (mep_h instance, const double azimuth, const double polar)
+void mep_setPosition_byNormal (mep_h instance, const double azimuth_graus, const double polar_graus)
 {
     assert(instance != NULL);
     mep_t *this = instance;
@@ -232,6 +232,9 @@ void mep_setPosition_byNormal (mep_h instance, const double azimuth, const doubl
         .gamma = DEG_TO_RAD(0),
         .mounting_mode = MEP_CINEMATICS_MODE_LLL
     };
+
+    const double azimuth = DEG_TO_RAD(azimuth_graus);
+    const double polar = DEG_TO_RAD(polar_graus);
 
     // Obtém o vetor normal a partir do azimute e polar
     // n = [sin(azimute)*sin(polar); cos(azimute)*sin(polar); cos(polar)];

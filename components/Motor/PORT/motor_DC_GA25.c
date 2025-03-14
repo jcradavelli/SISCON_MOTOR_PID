@@ -77,8 +77,8 @@ void motor_dc_ga25_run_cw (motor_hand_h handler)
 
     assert(handler!=NULL);
 
-    ESP_ERROR_CHECK(gpio_set_level(object->motor_control_a,1));
     ESP_ERROR_CHECK(gpio_set_level(object->motor_control_b,0));
+    ESP_ERROR_CHECK(gpio_set_level(object->motor_control_a,1));
 
 }
 
