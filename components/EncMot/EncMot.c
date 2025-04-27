@@ -192,6 +192,10 @@ void encmot_job (encmot_h handler, encmotDebugStream_t *stream_out) //sugestão 
 
     switch(object->contmode)
     {
+        case CONTMODE_DISABLED:
+            controller_output = 0;
+            break;
+
         case CONTMODE_OPEN_LOOP:
             controller_output = __contmode_openloop(handler);
             memset(PIDStream, 0, sizeof(PIDControllerDebugStream_t));
@@ -299,11 +303,39 @@ void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd)
 
 void encmot_get_pid (encmot_h handler, double *kp, double *ki, double *kd)
 {
-    encmot_t *object = handler;
     assert(handler!=NULL);
+    encmot_t *object = handler;
 
     PIDController_get_pid(object->PIDcontroller, kp, ki, kd);
 }   
+
+void encmot_release_motors (encmot_h handler)
+{
+    assert(handler!=NULL);
+    encmot_t *object = handler;
+
+    object->contmode = CONTMODE_DISABLED;
+    motor_release(object->motor);
+}
+
+void encmot_set_home(encmot_h handler)
+{
+    assert(handler!=NULL);
+    encmot_t *object = handler;
+
+    encoder_set_home(object->encoder);
+
+}
+
+
+void encmot_set_home_isr(encmot_h handler)
+{
+    assert(handler!=NULL);
+    encmot_t *object = handler;
+
+    encoder_set_home_isr(object->encoder);
+
+}
 
 
 

@@ -185,7 +185,9 @@ void motor_servo_24h55m020_release (motor_hand_h handler)
 
     assert(handler!=NULL);
     
-    ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+    if (xPortInIsrContext() == 0)
+        printf("\r\n ERRO Funcao nao implementada\r\n");
+
 }
 
 /**
@@ -206,8 +208,6 @@ void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
     ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,1));
 
     ESP_LOGI(TAG, "Set Speed: %0.2f | %lu Hz", speed, freq_hz);
-
-
 
     if (freq_hz > FREQ_MAX)
     {

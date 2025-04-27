@@ -31,6 +31,7 @@ extern "C" {
  */
 typedef enum controlerMode_
 {
+    CONTMODE_DISABLED,          //<! Controle desabilitado  
     CONTMODE_OPEN_LOOP,         //<! Controle em malha aberta
     CONTMODE_PID_SPEED,         //<! Controle de velocidade em malha fechada tipo PID
     CONTMODE_PID_POSITION,      //<! Controle de posição em malha fechada tipo PID
@@ -116,6 +117,8 @@ typedef struct encmot_config_{
         bool* isSatured;
     }pid_config;
 
+    
+
 }encmot_config_t;
 
 /**
@@ -141,14 +144,6 @@ typedef struct encmot_config_{
  * @return ::encmot_h - Handler para o objeto EncMotor (dinamicamente alocado)
  */
 encmot_h encmot_attach (encmot_config_t config);
-
-/**
- * @brief Obtem a contágem crua do valor do encoder
- * 
- * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
- * @return int valor contado
- */
-int encmot_get_enconderCount_raw(encmot_h handler);
 
 /**
  * @brief 
@@ -221,6 +216,21 @@ void encmot_tune_pid (encmot_h handler, double kp, double ki, double kd);
  * @param kd ganho derivativo [out]
  */
 void encmot_get_pid (encmot_h handler, double *kp, double *ki, double *kd);
+
+/**
+ * @brief Libera o motor para girar livremente
+ * 
+ * @param handler handler para o objeto encmot, inicializado pela função ::encmot_attach
+ */
+void encmot_release_motors (encmot_h handler);
+
+/**
+ * @brief Atribui a posição atual como sendo a posição home
+ * 
+ * @param handler 
+ */
+void encmot_set_home(encmot_h handler);
+void encmot_set_home_isr(encmot_h handler);
 
 
 #ifdef __cplusplus

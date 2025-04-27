@@ -60,7 +60,9 @@ typedef struct encoder_config_{
     pcnt_event_on_reach_callback_h example_pcnt_on_reach; //!< Endereço de função de calback ver ::pcnt_event_on_reach_callback_h
     void *example_pcnt_on_reach_user_data;  //!< Parâmetro enviado para a callback
     int pulses_per_revolution;           //!< numero de PULSOS/volta - use -1 para usar os valores em contagens
-}encoder_config_t;
+    int gpio_home;                      //!< Número do GPIO do sinal de home   
+}
+encoder_config_t;
 
 /**
  * @brief estrutura de dados obtidos com a leitura do encoder
@@ -128,6 +130,13 @@ void encoder_job (encoder_h handler);
  */
 encoder_sample_t encoder_get_lastSample (encoder_h handler);
 
+/**
+ * @brief cnfigura como zero a posição atual
+ * 
+ * @param handler 
+ */
+void encoder_set_home(encoder_h handler);
+void encoder_set_home_isr(encoder_h handler);
 
 
 #ifdef __cplusplus

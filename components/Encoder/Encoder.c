@@ -17,6 +17,7 @@
 #include <string.h>
 #include <math.h>
 
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif  
@@ -35,6 +36,9 @@ typedef struct encoder_{
     encoder_sample_t last_sample;
 
     double encoderGain;                         //!< Ganho que converte a contagem de pulsos em deslocamento (radianos)
+
+    portMUX_TYPE my_spinlock;
+
 }encoder_t;
 
 static encoder_t __encoder_attach 
@@ -102,6 +106,10 @@ static encoder_t __encoder_attach
     //     };
     //     ESP_ERROR_CHECK(pcnt_unit_register_event_callbacks(pcnt_unit, &cbs, example_pcnt_on_reach_user_data));
     // }
+
+
+    retval.my_spinlock = (portMUX_TYPE)portMUX_INITIALIZER_UNLOCKED;
+
 
     ESP_LOGI(TAG, "enable pcnt unit");
     ESP_ERROR_CHECK(pcnt_unit_enable(pcnt_unit));
@@ -225,7 +233,7 @@ void encoder_clear_encoderCount (encoder_h handler)
 void encoder_job (encoder_h handler)
 {
     encoder_t *object = handler;
-    static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;
+    //static portMUX_TYPE my_spinlock = portMUX_INITIALIZER_UNLOCKED;
     double count;
     double speed=0;
     double acele;
@@ -237,10 +245,10 @@ void encoder_job (encoder_h handler)
     assert(handler!=NULL);
 
     // Faz a aquisição da amostra
-    taskENTER_CRITICAL(&my_spinlock);
+    taskENTER_CRITICAL(&object->my_spinlock);
     count   = encoder_get_enconderCount_raw(handler);
     time    = esp_timer_get_time();
-    taskEXIT_CRITICAL(&my_spinlock);
+    taskEXIT_CRITICAL(&object->my_spinlock);
 
 
 
@@ -300,5 +308,24 @@ encoder_sample_t encoder_get_lastSample (encoder_h handler)
     assert(handler!=NULL);
 
     return(object->last_sample);
+}
+
+void encoder_set_home_isr(encoder_h handler)
+{
+    encoder_t *object = handler;
+    assert(handler!=NULL);
+    
+    pcnt_unit_clear_count(object->pcnt_unit);
+    object->last_sample.angle = 0;
+    object->last_sample.count = 0;
+}
+void encoder_set_home(encoder_h handler)
+{
+    encoder_t *object = handler;
+    assert(handler!=NULL);
+    
+    taskENTER_CRITICAL(&object->my_spinlock);
+    encoder_set_home_isr(handler);
+    taskEXIT_CRITICAL(&object->my_spinlock);
 }
 

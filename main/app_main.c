@@ -186,6 +186,8 @@ void app_main(void)
     assert(interface_mep != NULL);
     interface_mep->handler = mep;
     interface_mep->setNormal = &mep_setPosition_byNormal;
+    interface_mep->release_motors = &mep_release_motors;
+    interface_mep->home_position = &mep_home_position;
     register_mep(interface_mep);
 
 
