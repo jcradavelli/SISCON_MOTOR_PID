@@ -246,7 +246,7 @@ void tsk_graph (void *args)
     assert (args != NULL);
     assert (this->logQueue != NULL);
 
-    init_display();
+    //init_display();
 
     while(true)
     {
@@ -281,67 +281,9 @@ void tsk_graph (void *args)
                     received.PID.out
                 );
 
-                if (count++ >= 30)
-                {
-                    lv_label_set_text_fmt(label_value_read, "read: %0.5f", received.PID.measurement);
-                    count=0;
-                }
-
-                if (received.PID.measurement > last_measurement)
-                {
-                    state = STATE_UP;
-                }
-                else
-                {
-                    state = STATE_DOW;
-                }
-
-                if (oldState == STATE_UP && state == STATE_DOW)
-                {
-                    //ocorreu uma troca de derivada
-                    ESP_LOGI(TAG,">Period_ms: %d", period*100);
-                    period = 0;
-                }
-
-                last_measurement = received.PID.measurement;
-                oldState = state;
-                period++;
-
-            break;
-
-            case USR_KP:
-                lv_label_set_text_fmt(label_value_kp, "Kp:\t%0.4f", received.kp);
-                lv_scr_load(scr_default);
                 break;
 
-            case USR_KI:
-                lv_label_set_text_fmt(label_value_ki, "Ki:\t%0.4f", received.ki);
-                lv_scr_load(scr_default);
-                break;
-
-            case USR_KD:
-                lv_label_set_text_fmt(label_value_kd, "Kd:\t%0.4f", received.kd);
-                lv_scr_load(scr_default);
-                break;
-
-            case USR_SP:
-                lv_label_set_text_fmt(label_value_sp, "S.P.:\t%0.4f", received.sp);
-                lv_scr_load(scr_default);
-                break;
-
-            case USR_SEL:
-                lv_label_set_text(label_selected, received.sel);
-                lv_scr_load(scr_updating);
-                break;
-
-            case USR_INC:
-                lv_label_set_text_fmt(label_incremen, "incremento:\t%0.4f", received.inc);
-                lv_scr_load(scr_updating);
-                break;
-
-            case USR_VAL:
-                lv_label_set_text_fmt(label_usrValue, "%0.4f", received.usrVal);
-                lv_scr_load(scr_updating);
+            default:
                 break;
         }
     }
