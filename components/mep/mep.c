@@ -237,9 +237,9 @@ void mep_setPosition_byNormal (mep_h instance, const double azimuth_graus, const
     const double polar = DEG_TO_RAD(polar_graus);
 
     // Obtém o vetor normal a partir do azimute e polar
-    // n = [sin(azimute)*sin(polar); cos(azimute)*sin(polar); cos(polar)];
-    normal[0] = sin(azimuth) * sin(polar);
-    normal[1] = cos(azimuth) * sin(polar);
+    // Corrigido em 22/04/2025
+    normal[0] = cos(azimuth) * sin(polar);
+    normal[1] = sin(azimuth) * sin(polar);
     normal[2] = cos(polar);
 
 
