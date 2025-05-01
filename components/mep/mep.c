@@ -285,8 +285,78 @@ mep_h mep_init(QueueHandle_t LogQueue)
 
 }
 
-
+/**
+ * @brief versão modificada da função que posiciona a plataforma de acordo com o azimute e o polar da normal à posição desejada
+ * 
+ * percebi que a função original estava falhando quando o azimute era muito grande
+ * mas o azimute pode ser inserido diretamente noas angulos de saida, sem precisar ser convertido através do vetor normal
+ * provavelmente algum erro de arredondamento nessa conversão resulta em erros grandes
+ * 
+ * Dessa forma a calcula-se apenas a inclinação com o angulo polar e o azimute é adicionado diretamente aos angulos de saída
+ * 
+ * @param instance          objeto mep sendo controados
+ * @param azimuth_graus     graus do azimute, entre a projeção da normal e o eixo X
+ * @param polar_graus       graus do polar, em relação ao eixo Z
+ */
 void mep_setPosition_byNormal (mep_h instance, const double azimuth_graus, const double polar_graus)
+{
+    assert(instance != NULL);
+    mep_t *this = instance;
+    double normal[3];
+
+    double out_v1[3], out_v2[3], out_v3[3];// intermediate values
+    double Vx[3], Vy[3], Vz[3];
+    double theta[3];
+    mep_cinematics_t mep_parameters = {
+        .alpha = {DEG_TO_RAD(45), DEG_TO_RAD(90)},
+        .gamma = DEG_TO_RAD(0),
+        .mounting_mode = MEP_CINEMATICS_MODE_LLL
+    };
+
+    const double azimuth = DEG_TO_RAD(azimuth_graus);
+    const double polar = DEG_TO_RAD(polar_graus);
+
+    // Obtém o vetor normal a partir do azimute e polar
+    // Corrigido em 22/04/2025 - desfeito em 29/04/2025 [quando corrigido não resultou em posição coerenteS]
+    normal[0] = sin(0) * sin(polar);
+    normal[1] = cos(0) * sin(polar);
+    normal[2] = cos(polar);
+
+
+    getVectorsFromNormal(normal, out_v1, out_v2, out_v3);
+    printf("out_v1: %f %f %f\n", out_v1[0], out_v1[1], out_v1[2]);
+    printf("out_v2: %f %f %f\n", out_v2[0], out_v2[1], out_v2[2]);
+    printf("out_v3: %f %f %f\n", out_v3[0], out_v3[1], out_v3[2]);
+
+    Vx[0] = out_v1[0];
+    Vx[1] = out_v2[0];
+    Vx[2] = out_v3[0];
+
+    Vy[0] = out_v1[1];
+    Vy[1] = out_v2[1];
+    Vy[2] = out_v3[1];
+
+    Vz[0] = out_v1[2];
+    Vz[1] = out_v2[2];
+    Vz[2] = out_v3[2];
+
+    getAnglesFromVectors(mep_parameters, theta, Vx, Vy, Vz);
+
+    theta[0] += azimuth;
+    theta[1] += azimuth;
+    theta[2] += azimuth;
+
+    printf("theta: %f %f %f\n", theta[0], theta[1], theta[2]);
+
+    encmot_set_position(this->encmot[0], theta[0]);
+    encmot_set_position(this->encmot[1], theta[1]);
+    encmot_set_position(this->encmot[2], theta[2]);
+}
+
+
+
+
+void mep_setPosition_byNormal_original (mep_h instance, const double azimuth_graus, const double polar_graus)
 {
     assert(instance != NULL);
     mep_t *this = instance;
