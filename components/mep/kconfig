@@ -1,5 +1,22 @@
 menu "mep - manipulador esferico paralelo"
 
+    config MEP_MOTOR_STATUS_GPIO
+        int "GPIO que indica o status dos motores"
+        default 1
+        help
+            Esse gpio será confgurado como entrada e pullups internos e identifica como erro sinal em nível lógico baixo
+    
+
+    config MEP_ENABLE_POWER_GPIO
+        int "GPIO de habilitação da energia para o manipulador"
+        default 38
+
+    config MEP_ENABLE_POWER_ENABLE_ON_HIGH
+        bool "Energia é fornecida para pino em nível alto"
+        default TRUE
+        help
+            Selecione essa opção (true) se a energia é liberada para os motores quando o pino MEP_ENABLE_POWER_GPIO está em nível lógico alto
+    
     choice MOTOR_MODEL
         bool "opção de motor a ser utilizado"
         default SERVO_24H55M020

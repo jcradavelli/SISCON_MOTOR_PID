@@ -49,10 +49,10 @@ typedef struct motor_hand_SERVO_24H55M020_{
 static motor_hand_t __motor_servo_24h55m020_attach (    
     // TODO: Parametros são os pios de cada funcao
     const uint64_t speed_gpio     ,
-    const uint64_t enable_gpio,
+    const int64_t enable_gpio,
     const uint64_t break_gpio     ,
     const uint64_t cw_ccw_gpio    ,
-    const uint64_t status_gpio    ,
+    const int status_gpio    ,
     const ledc_timer_t  timer_num,
     const double speed_offset,
     const double speed_gain,
@@ -87,25 +87,31 @@ static motor_hand_t __motor_servo_24h55m020_attach (
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
-    // Configura os sinais de controle do motor
-    const gpio_config_t gpio_config_mcu_inputs = {
-        .pin_bit_mask = BIT64(status_gpio),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE,
-    };
+    if (status_gpio >= 0)
+    {
+
+        // Configura os sinais de controle do motor
+        const gpio_config_t gpio_config_mcu_inputs = {
+            .pin_bit_mask = BIT64(status_gpio),
+            .mode = GPIO_MODE_INPUT,
+            .pull_up_en = GPIO_PULLUP_DISABLE,
+            .pull_down_en = GPIO_PULLDOWN_DISABLE,
+            .intr_type = GPIO_INTR_DISABLE,
+        };
+        ESP_ERROR_CHECK(gpio_config(&gpio_config_mcu_inputs));
+    }
+
+
     // Configura os sinais de controle do motor
     const gpio_config_t gpio_config_mcu_outputs = {
-        .pin_bit_mask = BIT64((uint64_t) enable_gpio) |
-                        BIT64((uint64_t) break_gpio) |
+        .pin_bit_mask = enable_gpio>=0?BIT64((uint64_t) enable_gpio):0 |
+                        BIT64((uint64_t) break_gpio)  |
                         BIT64((uint64_t) cw_ccw_gpio),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_ENABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE,
     };
-    ESP_ERROR_CHECK(gpio_config(&gpio_config_mcu_inputs));
     ESP_ERROR_CHECK(gpio_config(&gpio_config_mcu_outputs));
 
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, timer_num, LEDC_DUTY));
@@ -185,7 +191,8 @@ void motor_servo_24h55m020_release (motor_hand_h handler)
 
     assert(handler!=NULL);
     
-    ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+    if (object->enable_gpio >= 0)
+        ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
 }
 
 /**
@@ -203,7 +210,8 @@ void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
 
     uint32_t freq_hz = fabs(speed) * FREQ_MAX;
 
-    ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,1));
+    if (object->enable_gpio >= 0)
+        ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,1)); 
 
     ESP_LOGI(TAG, "Set Speed: %0.2f | %lu Hz", speed, freq_hz);
 
@@ -221,7 +229,9 @@ void motor_servo_24h55m020_set_speed (motor_hand_h handler, double speed)
         freq_hz = FREQ_MIN;
         //TODO: Parar o motor!
         
-        ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+        if (object->enable_gpio >= 0)
+            ESP_ERROR_CHECK(gpio_set_level(object->enable_gpio,0));
+            
         ESP_ERROR_CHECK(gpio_set_level(object->break_gpio,0));
 
 

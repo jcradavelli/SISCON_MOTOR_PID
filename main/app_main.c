@@ -156,7 +156,7 @@ void app_main(void)
     create_tsk_console(&console_config, configMAX_PRIORITIES/2, 0);
 
 
-    esp_log_level_set("*",                  ESP_LOG_NONE);
+    esp_log_level_set("*",                  ESP_LOG_INFO);
 
 
 
