@@ -13,7 +13,7 @@
 #define LEDC_DUTY               (1<<(LEDC_DUTY_RES-1)) // Set duty to 50%
 #define LEDC_FREQUENCY          (50) // Frequency in Hertz. Set frequency at 4 kHz
 
-#define FREQ_MAX                (800) // 20KHz limite fisico
+#define FREQ_MAX                (1600)//(800) // 20KHz limite fisico
 #define FREQ_MIN                (50)   // 300Hz
 
 // #define speed_gpio          (2) // MCU OUTPUT speed singnal

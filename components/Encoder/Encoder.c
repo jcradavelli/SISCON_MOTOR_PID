@@ -246,14 +246,14 @@ void encoder_job (encoder_h handler)
 
     // Calcula as derivadas
     dtime = (time - object->last_sample.time);
-    ESP_LOGE(TAG,"\n>debug:%f\r\n",(count - object->last_sample.count));
-    ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
+    // ESP_LOGE(TAG,"\n>debug:%f\r\n",(count - object->last_sample.count));
+    // ESP_LOGE(TAG,"\n>Limiar:%d\r\n",(SHRT_MAX/2));
     if (fabs(count - object->last_sample.count) > (SHRT_MAX/2)) // Ocorreu overflow ou underflow na contágem?
     {
-        ESP_LOGE(TAG,"\n>count:%f\r\n",count);
-        ESP_LOGE(TAG,"\n>object->last_sample.count:%f\r\n",object->last_sample.count);
-        ESP_LOGE(TAG,"\n>SHRT_MIN:%d\r\n",SHRT_MIN);
-        ESP_LOGE(TAG,"\n>SHRT_MAX:%d\r\n",SHRT_MAX);
+        // ESP_LOGE(TAG,"\n>count:%f\r\n",count);
+        // ESP_LOGE(TAG,"\n>object->last_sample.count:%f\r\n",object->last_sample.count);
+        // ESP_LOGE(TAG,"\n>SHRT_MIN:%d\r\n",SHRT_MIN);
+        // ESP_LOGE(TAG,"\n>SHRT_MAX:%d\r\n",SHRT_MAX);
 
         if (count > object->last_sample.count) // overflow?
         {
@@ -265,11 +265,11 @@ void encoder_job (encoder_h handler)
             object->last_sample.count += SHRT_MIN; //ok
             speed = (double)(count - object->last_sample.count)/(dtime);
         }
-        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
+        // ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
     }
     else
     {
-        ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
+        // ESP_LOGE(TAG,"\n>considerado:%f\r\n",(count - object->last_sample.count));
         speed = (double)(count - object->last_sample.count)/(dtime);
     }
     acele = (speed - object->last_sample.speed)/(dtime);
@@ -279,11 +279,11 @@ void encoder_job (encoder_h handler)
 
 
     // Debug dos dados de encoder
-    ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
-    ESP_LOGI(TAG,"\n>count:%f \r\n",count);
-    ESP_LOGI(TAG,"\n>Encoder Speed (rad/s):%0.20f\r\n",speed);
-    ESP_LOGI(TAG,"\n>acele (rad/s²):%0.20f \r\n",acele);
-    ESP_LOGI(TAG,"\n>jerk (rad/s³):%0.20f \r\n",jerk);
+    // ESP_LOGI(TAG,"\n>time:%d us\r\n",dtime);
+    // ESP_LOGI(TAG,"\n>count:%f \r\n",count);
+    // ESP_LOGI(TAG,"\n>Encoder Speed (rad/s):%0.20f\r\n",speed);
+    // ESP_LOGI(TAG,"\n>acele (rad/s²):%0.20f \r\n",acele);
+    // ESP_LOGI(TAG,"\n>jerk (rad/s³):%0.20f \r\n",jerk);
 
     // Atualiza os valores
     object->last_sample.time    = time;

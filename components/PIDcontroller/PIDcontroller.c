@@ -48,6 +48,7 @@ typedef struct
 	double differentiator;
 	double prevMeasurement;		/* Required for differentiator */
 	double oldSetpoint;
+	double oldError;
 	/* Controller output */
 	double out;
 } PIDController_t;
@@ -130,17 +131,21 @@ double PIDController_Update(PIDController_h pid, double setpoint, double measure
 	// Variáveis internas
 	PIDController_t *this = pid;
 
-	// Reseta o integrador ao modificar o sentido do controle
-	if((this->oldSetpoint >= 0) ^ (setpoint > 0))
-	{
-		this->integrator = this->integrator*-1;
-		this->oldSetpoint = setpoint;
-	}
-
 	/*
 	* Error signal
 	*/
-    error = setpoint - measurement;
+	error = setpoint - measurement;
+
+	// Reseta o integrador ao modificar o sentido do controle
+	if((this->oldSetpoint >= 0) ^ (setpoint > 0) || (this->oldError >= 0) ^ (error > 0))
+	{
+		this->integrator = 0;//this->integrator*-1;
+	}
+	
+	this->oldError = error;
+	this->oldSetpoint = setpoint;
+
+
 
 	/*
 	* Proportional

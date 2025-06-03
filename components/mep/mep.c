@@ -69,9 +69,9 @@ const encmot_config_t encmot_config[3]     =
             },
         },
         .pid_config = {
-            .kp                                 = GAIN_KP,
-            .ki                                 = GAIN_KI,
-            .kd                                 = GAIN_KD,
+            .kp                                 = 0.8,
+            .ki                                 = 0.45,
+            .kd                                 = 0.0085,
             .samplerate_ms                      = CONFIG_MEP_SERVO_24H55M020_SAMPLERATE_MS,
             .isSatured                          = &satured,
         }
@@ -99,9 +99,9 @@ const encmot_config_t encmot_config[3]     =
             },
         },
         .pid_config = {
-            .kp                                 = GAIN_KP,
-            .ki                                 = GAIN_KI,
-            .kd                                 = GAIN_KD,
+            .kp                                 = 0.7,
+            .ki                                 = 0.4,
+            .kd                                 = 0.009,
             .samplerate_ms                      = CONFIG_MEP_SERVO_24H55M020_SAMPLERATE_MS,
             .isSatured                          = &satured,
         }
@@ -129,9 +129,9 @@ const encmot_config_t encmot_config[3]     =
             },
         },
         .pid_config = {
-            .kp                                 = GAIN_KP,
-            .ki                                 = GAIN_KI,
-            .kd                                 = GAIN_KD,
+            .kp                                 = 0.7,
+            .ki                                 = 0.5,
+            .kd                                 = 0.01,
             .samplerate_ms                      = CONFIG_MEP_SERVO_24H55M020_SAMPLERATE_MS,
             .isSatured                          = &satured,
         }
@@ -189,7 +189,7 @@ static void mep_task(mep_h instance)
 
     while(true)
     {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(20));
         // Verifica status dos motores
 
 
@@ -215,6 +215,7 @@ static void mep_task(mep_h instance)
             // Para habilitar os logs, usa-se o comando log_level do terminal
             //      ou a função set_log_level da esp-idf
             ESP_LOGI(TAGS[i],
+                "\n"
                 ">CH%d_measurement:\t\t%e\n"
                 ">CH%d_setpoint:\t%e\n"
                 ">CH%d_error:\t\t%e\n"
@@ -277,7 +278,8 @@ mep_h mep_init(QueueHandle_t LogQueue)
         this->encmot[i] = encmot_attach(encmot_config[i]);
     }
 
-    xTaskCreate(mep_task, "mep_task", /* Stack Size = */ 4*2048 , this, 2*configMAX_PRIORITIES/3, NULL);
+    xTaskCreatePinnedToCore(mep_task, "mep_task", /* Stack Size = */ 4*2048 , this, 2*configMAX_PRIORITIES/3, NULL, 1);
+
 
 
 
@@ -313,8 +315,11 @@ void mep_setPosition_byNormal (mep_h instance, const double azimuth_graus, const
         .mounting_mode = MEP_CINEMATICS_MODE_LLL
     };
 
-    const double azimuth = DEG_TO_RAD(azimuth_graus);
-    const double polar = DEG_TO_RAD(polar_graus);
+    double azimuth = DEG_TO_RAD(azimuth_graus);
+    double polar = DEG_TO_RAD(polar_graus);
+
+    if (azimuth == 0) azimuth = azimuth + 0.00001;
+    if (polar == 0) polar = polar + 0.00001;
 
     // Obtém o vetor normal a partir do azimute e polar
     // Corrigido em 22/04/2025 - desfeito em 29/04/2025 [quando corrigido não resultou em posição coerenteS]
